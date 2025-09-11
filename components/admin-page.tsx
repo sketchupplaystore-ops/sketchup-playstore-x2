@@ -21,11 +21,12 @@ import {
   X,
   Building2,
   MessageSquare,
-  Bell,
   Clock,
   AlertTriangle,
   CheckCircle,
   Users,
+  Bell,
+  TrendingUp,
 } from "lucide-react"
 
 const mockProjects = [
@@ -96,6 +97,9 @@ interface AdminPageProps {
 export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [showNewProjectForm, setShowNewProjectForm] = useState(false)
+  const [projects, setProjects] = useState(mockProjects)
+  const [isCreatingProject, setIsCreatingProject] = useState(false)
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [newProject, setNewProject] = useState({
     title: "",
     address: "",
@@ -105,8 +109,28 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
     urgent: false,
   })
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: "client",
+      text: "Hi admin, when will my project be ready?",
+      time: "10:30 AM",
+      projectId: 1,
+      read: false,
+    },
+    {
+      id: 2,
+      sender: "designer",
+      text: "Need clarification on the 3D model requirements",
+      time: "11:15 AM",
+      projectId: 2,
+      read: false,
+    },
+  ])
+  const [newMessage, setNewMessage] = useState("")
+  const [selectedMessageProject, setSelectedMessageProject] = useState<number | null>(null)
 
-  const filteredProjects = mockProjects.filter((project) => {
+  const filteredProjects = projects.filter((project) => {
     const matchesSearch =
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,11 +138,48 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
     return matchesSearch
   })
 
-  const handleCreateProject = () => {
-    console.log("Creating project:", newProject, "Files:", uploadedFiles)
+  const handleCreateProject = async () => {
+    if (!newProject.address || !newProject.client || !newProject.dueDate || !newProject.budget) {
+      alert("Please fill in all required fields")
+      return
+    }
+
+    setIsCreatingProject(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    const projectData = {
+      id: projects.length + 1,
+      title: newProject.address,
+      address: newProject.address,
+      client: newProject.client,
+      status: "Available" as const,
+      dueDate: newProject.dueDate,
+      assignee: null,
+      progress: 0,
+      currentPhase: "Archicad" as const,
+      files: uploadedFiles.map((file) => ({
+        name: file.name,
+        type: file.type.includes("image") ? "image" : file.type.includes("pdf") ? "pdf" : "file",
+        size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+      })),
+      budget: Number.parseInt(newProject.budget),
+      earnings: { archicad: 2.5, sketchup: 10, rendering: 2.5 },
+      createdBy: "Admin",
+      createdAt: new Date().toISOString().split("T")[0],
+      thumbnail: "/3d-garden-model.jpg",
+    }
+
+    setProjects([projectData, ...projects])
+    setIsCreatingProject(false)
     setShowNewProjectForm(false)
+    setShowSuccessMessage(true)
     setNewProject({ title: "", address: "", client: "", dueDate: "", budget: "", urgent: false })
     setUploadedFiles([])
+
+    // Hide success message after 3 seconds
+    setTimeout(() => setShowSuccessMessage(false), 3000)
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,73 +192,120 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
     setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
   }
 
+  const handleSendMessage = () => {
+    if (!newMessage.trim() || !selectedMessageProject) return
+
+    const message = {
+      id: messages.length + 1,
+      sender: "admin",
+      text: newMessage,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      projectId: selectedMessageProject,
+      read: true,
+    }
+
+    setMessages([...messages, message])
+    setNewMessage("")
+    setSelectedMessageProject(null)
+  }
+
+  const markMessageAsRead = (messageId: number) => {
+    setMessages(messages.map((msg) => (msg.id === messageId ? { ...msg, read: true } : msg)))
+  }
+
+  const unreadCount = messages.filter((msg) => !msg.read).length
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
+      {showSuccessMessage && (
+        <div className="fixed top-4 right-4 z-50 animate-slide-down">
+          <div className="bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2">
+            <CheckCircle className="h-5 w-5" />
+            <span className="font-medium">Project created successfully!</span>
+          </div>
+        </div>
+      )}
+
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <Button
+          size="sm"
+          variant="default"
+          className="bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          Admin
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-slate-600 hover:bg-white hover:text-slate-800 rounded-xl px-3 h-8 text-xs transition-all duration-200 bg-white/80 backdrop-blur-sm border-slate-200 hover:shadow-sm"
+          onClick={() => onRoleSwitch("designer")}
+        >
+          Designer
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-slate-600 hover:bg-white hover:text-slate-800 rounded-xl px-3 h-8 text-xs transition-all duration-200 bg-white/80 backdrop-blur-sm border-slate-200 hover:shadow-sm"
+          onClick={() => onRoleSwitch("client")}
+        >
+          Client
+        </Button>
+        {onLogout && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onLogout}
+            className="text-xs text-slate-500 hover:text-slate-700 px-2 h-6 rounded-lg transition-colors"
+          >
+            Logout
+          </Button>
+        )}
+      </div>
+
+      <header className="sticky top-0 z-40 border-b border-white/20 bg-white/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900">
+            <div className="flex items-center gap-4 animate-slide-up">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-lg">
                 <Building2 className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Admin Dashboard</h1>
-                <p className="text-sm text-gray-500">Project Management & Oversight</p>
+                <h1 className="text-xl font-semibold text-slate-900">Admin Dashboard</h1>
+                <p className="text-sm text-slate-500">Project Management & Oversight</p>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 pl-10 h-9 border-gray-200 focus:border-slate-400 focus:ring-slate-400/20 rounded-lg bg-white"
+                  className="w-64 pl-9 border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20 rounded-xl bg-white/50 backdrop-blur-sm transition-all duration-200"
                 />
               </div>
 
-              <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+              <div className="relative">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="bg-slate-900 text-white hover:bg-slate-800 rounded-md px-3 h-7 text-xs"
+                  className="h-9 w-9 p-0 rounded-xl bg-white/50 backdrop-blur-sm border-slate-200 hover:bg-white hover:shadow-sm transition-all duration-200"
                 >
-                  Admin
+                  <Bell className="h-4 w-4 text-slate-600" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-600 hover:bg-white hover:text-slate-900 rounded-md px-3 h-7 text-xs transition-colors"
-                  onClick={() => onRoleSwitch("designer")}
-                >
-                  Designer
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-600 hover:bg-white hover:text-slate-900 rounded-md px-3 h-7 text-xs transition-colors"
-                  onClick={() => onRoleSwitch("client")}
-                >
-                  Client
-                </Button>
+                {unreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 h-5 w-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs text-white font-medium">{unreadCount}</span>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
-                  <User className="h-4 w-4 text-gray-600" />
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-sm">
+                  <User className="h-4 w-4 text-slate-600" />
                 </div>
-                <span className="font-medium">John Admin</span>
-                {onLogout && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onLogout}
-                    className="text-xs text-gray-500 hover:text-slate-900 px-2 h-6"
-                  >
-                    Logout
-                  </Button>
-                )}
+                <span className="font-medium">James</span>
               </div>
             </div>
 
@@ -205,7 +313,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 h-8"
+                className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
@@ -213,7 +321,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 hover:bg-gray-100 hover:text-slate-900 rounded-lg px-4 h-8 transition-colors text-gray-600"
+                className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
                 onClick={() => onNavigate("files")}
               >
                 <FolderOpen className="h-4 w-4" />
@@ -221,54 +329,57 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
               </Button>
             </nav>
           </div>
-        </div>
-      </header>
+        </header>
 
       <main className="max-w-7xl mx-auto p-6">
         {showNewProjectForm && (
-          <Card className="border-gray-200 rounded-xl mb-6 overflow-hidden bg-white">
-            <div className="bg-gray-50 p-4 border-b border-gray-200">
-              <CardTitle className="text-lg font-semibold text-gray-900">Post New Project</CardTitle>
+          <Card className="border-white/50 mb-6 bg-white/70 backdrop-blur-sm shadow-lg animate-slide-up hover-lift rounded-xl overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 p-4 border-b border-white/20">
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <Plus className="h-5 w-5 text-emerald-600" />
+                Post New Project
+              </CardTitle>
             </div>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Project Address</label>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Project Address</label>
                   <Input
                     value={newProject.address}
                     onChange={(e) => setNewProject({ ...newProject, address: e.target.value, title: e.target.value })}
                     placeholder="123 Oak Street, Beverly Hills, CA"
-                    className="h-10 rounded-lg border-gray-200 bg-white"
+                    className="h-10 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Client Name</label>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Client Name</label>
                   <Input
                     value={newProject.client}
                     onChange={(e) => setNewProject({ ...newProject, client: e.target.value })}
                     placeholder="Johnson Family"
-                    className="h-10 rounded-lg border-gray-200 bg-white"
+                    className="h-10 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
                   />
                 </div>
               </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Due Date</label>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Due Date</label>
                   <Input
                     type="date"
                     value={newProject.dueDate}
                     onChange={(e) => setNewProject({ ...newProject, dueDate: e.target.value })}
-                    className="h-10 rounded-lg border-gray-200 bg-white"
+                    className="h-10 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Budget ($)</label>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Budget ($)</label>
                   <Input
                     type="number"
                     value={newProject.budget}
                     onChange={(e) => setNewProject({ ...newProject, budget: e.target.value })}
                     placeholder="15000"
-                    className="h-10 rounded-lg border-gray-200 bg-white"
+                    className="h-10 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
                   />
                 </div>
                 <div className="flex items-end">
@@ -277,15 +388,15 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                       type="checkbox"
                       checked={newProject.urgent}
                       onChange={(e) => setNewProject({ ...newProject, urgent: e.target.checked })}
-                      className="rounded border-gray-300"
+                      className="rounded border-slate-200 focus:border-emerald-400 transition-all duration-200"
                     />
-                    <span className="text-sm font-medium text-gray-700">Mark as Urgent</span>
+                    <span className="text-sm font-medium text-slate-700">Mark as Urgent</span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-slate-700 mb-2 block">
                   Upload Files (JPG, PDF, Videos - up to 10GB each)
                 </label>
                 <div>
@@ -299,12 +410,12 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                   />
                   <label
                     htmlFor="file-upload"
-                    className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-gray-400 transition-colors bg-gray-50/50"
+                    className="flex items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 transition-colors bg-white/50 backdrop-blur-sm"
                   >
                     <div className="text-center">
-                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700">Drag & drop files or click to upload</p>
-                      <p className="text-xs text-gray-500 mt-1">JPG, PDF, MP4 up to 10GB each</p>
+                      <Upload className="h-8 w-8 text-slate-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-slate-800">Drag & drop files or click to upload</p>
+                      <p className="text-xs text-slate-500 mt-1">JPG, PDF, MP4 up to 10GB each</p>
                     </div>
                   </label>
                 </div>
@@ -314,20 +425,20 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                     {uploadedFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                        className="flex items-center justify-between p-3 bg-white/80 rounded-lg border border-slate-200 backdrop-blur-sm"
                       >
                         <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-gray-500" />
+                          <FileText className="h-4 w-4 text-slate-600" />
                           <div>
-                            <span className="text-sm font-medium text-gray-900">{file.name}</span>
-                            <p className="text-xs text-gray-500">({(file.size / 1024 / 1024).toFixed(1)} MB)</p>
+                            <span className="text-sm font-medium text-slate-800">{file.name}</span>
+                            <p className="text-xs text-slate-500">({(file.size / 1024 / 1024).toFixed(1)} MB)</p>
                           </div>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => removeFile(index)}
-                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 rounded"
+                          className="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-600 rounded transition-all duration-200"
                         >
                           <X className="h-3 w-3" />
                         </Button>
@@ -340,14 +451,23 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
               <div className="flex gap-3 pt-2">
                 <Button
                   onClick={handleCreateProject}
-                  className="bg-slate-900 hover:bg-slate-800 h-10 px-6 rounded-lg text-white"
+                  disabled={isCreatingProject}
+                  className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-10 px-6 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 hover-lift"
                 >
-                  Post Project
+                  {isCreatingProject ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    "Post Project"
+                  )}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowNewProjectForm(false)}
-                  className="h-10 px-6 rounded-lg border-gray-300 hover:bg-gray-50"
+                  disabled={isCreatingProject}
+                  className="h-10 px-6 rounded-xl border-slate-200 hover:bg-white/80 backdrop-blur-sm transition-all duration-200"
                 >
                   Cancel
                 </Button>
@@ -360,35 +480,36 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">All Projects</h2>
-                <p className="text-gray-600 text-sm">Manage and oversee landscape design projects</p>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">All Projects</h2>
+                <p className="text-slate-600">Manage and oversee landscape design projects</p>
               </div>
               <Button
                 onClick={() => setShowNewProjectForm(true)}
-                className="gap-2 bg-slate-900 hover:bg-slate-800 h-10 px-4 rounded-lg text-white"
+                className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-10 px-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 hover-lift animate-scale-in"
               >
                 <Plus className="h-4 w-4" />
                 Post Project
               </Button>
             </div>
 
-            <div className="space-y-3">
-              {filteredProjects.map((project) => (
+            <div className="space-y-4">
+              {filteredProjects.map((project, index) => (
                 <Card
                   key={project.id}
-                  className="border-gray-200 hover:border-gray-300 transition-colors rounded-xl overflow-hidden bg-white"
+                  className="border-white/50 hover:border-emerald-200 transition-all duration-300 rounded-xl overflow-hidden bg-white/80 backdrop-blur-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 animate-slide-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-6">
                     <div className="flex items-center gap-4">
                       <img
                         src={project.thumbnail || "/placeholder.svg"}
                         alt={project.title}
-                        className="w-16 h-16 rounded-lg object-cover bg-gray-100"
+                        className="w-16 h-16 rounded-lg object-cover bg-muted"
                       />
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-medium text-gray-900 truncate">{project.title}</h3>
+                          <h3 className="font-medium text-card-foreground truncate">{project.title}</h3>
                           <Badge
                             className={getStatusColor(project.status) + " px-2 py-1 rounded-md text-xs font-medium"}
                           >
@@ -396,7 +517,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                           </Badge>
                         </div>
 
-                        <div className="flex items-center gap-6 text-xs text-gray-500 mb-3">
+                        <div className="flex items-center gap-6 text-xs text-muted-foreground mb-3">
                           <span className="flex items-center gap-1">
                             <User className="h-3 w-3" />
                             {project.client}
@@ -414,12 +535,12 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                         </div>
 
                         <div className="flex items-center gap-4 text-xs">
-                          <span className="font-medium text-gray-700">Phase: {project.currentPhase}</span>
+                          <span className="font-medium text-card-foreground">Phase: {project.currentPhase}</span>
                           <div className="flex-1 max-w-32">
                             <Progress value={project.progress} className="h-2" />
                           </div>
-                          <span className="text-gray-500">{project.progress}%</span>
-                          <span className="font-medium text-gray-900">Budget: $15k</span>
+                          <span className="text-muted-foreground">{project.progress}%</span>
+                          <span className="font-medium text-card-foreground">Budget: $15k</span>
                         </div>
                       </div>
 
@@ -427,7 +548,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-1 rounded-lg border-gray-200 h-8 px-3 text-xs bg-white hover:bg-gray-50 text-gray-700"
+                          className="gap-1 rounded-lg border-slate-200 bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <Eye className="h-3 w-3" />
                           View Details
@@ -435,7 +556,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-1 rounded-lg border-gray-200 h-8 px-3 text-xs bg-white hover:bg-gray-50 text-gray-700"
+                          className="gap-1 rounded-lg border-slate-200 bg-background hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <MessageSquare className="h-3 w-3" />
                           Messages
@@ -448,31 +569,135 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
             </div>
           </div>
 
-          <div className="w-80">
-            <div className="sticky top-20 space-y-4">
-              <Card className="border-gray-200 rounded-xl bg-white">
+          <aside className="w-80 border-l border-white/20 bg-white/70 backdrop-blur-xl p-6">
+            <div className="sticky top-20 space-y-6">
+              <Card className="border-white/50 bg-white/80 backdrop-blur-sm shadow-lg animate-slide-up">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-gray-900 flex items-center gap-2">
-                      <Bell className="h-4 w-4" />
-                      Recent Activity
-                    </h3>
-                    <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">4 new</span>
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5 text-emerald-600" />
+                      <h3 className="font-semibold text-slate-800">Messages</h3>
+                    </div>
+                    {unreadCount > 0 && (
+                      <Badge
+                        variant="outline"
+                        className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs rounded-full px-2 py-1"
+                      >
+                        {unreadCount} new
+                      </Badge>
+                    )}
                   </div>
+
+                  <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
+                    {messages.slice(-4).map((message) => (
+                      <div
+                        key={message.id}
+                        className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-muted/50 ${
+                          !message.read ? "bg-primary/5 border-l-2 border-primary" : "bg-muted/30"
+                        }`}
+                        onClick={() => markMessageAsRead(message.id)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-card-foreground capitalize">{message.sender}</p>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{message.text}</p>
+                          </div>
+                          <span className="text-xs text-muted-foreground">{message.time}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    <select
+                      value={selectedMessageProject || ""}
+                      onChange={(e) => setSelectedMessageProject(Number(e.target.value))}
+                      className="w-full p-2 text-sm border border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
+                    >
+                      <option value="">Select project to reply...</option>
+                      {projects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.title}
+                        </option>
+                      ))}
+                    </select>
+
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Type your message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                        className="flex-1 text-sm bg-white/80 backdrop-blur-sm rounded-lg border border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
+                      />
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim() || !selectedMessageProject}
+                        size="sm"
+                        className="px-3 transition-all duration-200 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg shadow-lg hover:shadow-xl"
+                      >
+                        Send
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="border-white/50 bg-white/80 backdrop-blur-sm shadow-lg animate-slide-up"
+                style={{ animationDelay: "100ms" }}
+              >
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-emerald-600" />
+                    Quick Stats
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Total Projects</span>
+                      <span className="font-medium text-card-foreground">{projects.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Available Jobs</span>
+                      <span className="font-medium text-card-foreground">
+                        {projects.filter((p) => p.status === "Available").length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Active Workers</span>
+                      <span className="font-medium text-card-foreground">3</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">This Month Revenue</span>
+                      <span className="font-medium text-card-foreground">$45k</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="border-white/50 bg-white/80 backdrop-blur-sm shadow-lg animate-slide-up"
+                style={{ animationDelay: "200ms" }}
+              >
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-emerald-600" />
+                    Recent Activity
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <CheckCircle className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900">Project Completed</p>
-                        <p className="text-xs text-gray-500 mb-1">Modern Backyard Landscape delivered</p>
+                        <p className="text-sm font-medium text-card-foreground">Project Completed</p>
+                        <p className="text-xs text-muted-foreground mb-1">Modern Backyard Landscape delivered</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">5 minutes ago</span>
+                          <span className="text-xs text-muted-foreground">5 minutes ago</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                           >
                             Review
                           </Button>
@@ -485,14 +710,14 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                         <Clock className="h-4 w-4 text-orange-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900">Approaching Deadline</p>
-                        <p className="text-xs text-gray-500 mb-1">Commercial Plaza due in 2 days</p>
+                        <p className="text-sm font-medium text-card-foreground">Approaching Deadline</p>
+                        <p className="text-xs text-muted-foreground mb-1">Commercial Plaza due in 2 days</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">1 hour ago</span>
+                          <span className="text-xs text-muted-foreground">1 hour ago</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                           >
                             View Project
                           </Button>
@@ -505,14 +730,14 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                         <Users className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900">New Assignment</p>
-                        <p className="text-xs text-gray-500 mb-1">Sarah Chen assigned to Residential Garden</p>
+                        <p className="text-sm font-medium text-card-foreground">New Assignment</p>
+                        <p className="text-xs text-muted-foreground mb-1">Sarah Chen assigned to Residential Garden</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">3 hours ago</span>
+                          <span className="text-xs text-muted-foreground">3 hours ago</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                           >
                             View Details
                           </Button>
@@ -525,14 +750,16 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                         <AlertTriangle className="h-4 w-4 text-red-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900">Revision Requested</p>
-                        <p className="text-xs text-gray-500 mb-1">Client requested changes to Modern Windows design</p>
+                        <p className="text-sm font-medium text-card-foreground">Revision Requested</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Client requested changes to Modern Windows design
+                        </p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">1 day ago</span>
+                          <span className="text-xs text-muted-foreground">1 day ago</span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 px-2 text-xs text-gray-600 hover:text-gray-900"
+                            className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                           >
                             View Revision
                           </Button>
@@ -542,36 +769,10 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                   </div>
                 </CardContent>
               </Card>
-
-              <Card className="border-gray-200 rounded-xl bg-white">
-                <CardContent className="p-4">
-                  <h3 className="font-medium text-gray-900 mb-3 text-sm">Quick Stats</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">Total Projects</span>
-                      <span className="font-medium text-gray-900">{mockProjects.length}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">Available Jobs</span>
-                      <span className="font-medium text-gray-900">
-                        {mockProjects.filter((p) => p.status === "Available").length}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">Active Workers</span>
-                      <span className="font-medium text-gray-900">3</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">This Month Revenue</span>
-                      <span className="font-medium text-gray-900">$45k</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
-          </div>
+          </aside>
         </div>
       </main>
     </div>
-  )
+  )\
 }

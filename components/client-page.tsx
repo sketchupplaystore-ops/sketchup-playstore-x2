@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -20,13 +20,14 @@ import {
   Download,
   AlertCircle,
   UserPlus,
-  Link,
   Mail,
   X,
   Phone,
   FolderDown,
   CreditCard,
   DollarSign,
+  Users,
+  Zap,
 } from "lucide-react"
 
 const mockClientProjects = [
@@ -67,6 +68,7 @@ const mockClientProjects = [
         status: "In Progress",
       },
     ],
+    clientName: "Johnson Family",
   },
   {
     id: 2,
@@ -98,6 +100,7 @@ const mockClientProjects = [
         status: "Under Review",
       },
     ],
+    clientName: "Johnson Family",
   },
   {
     id: 3,
@@ -123,6 +126,7 @@ const mockClientProjects = [
         status: "In Progress",
       },
     ],
+    clientName: "Johnson Family",
   },
   {
     id: 4,
@@ -153,6 +157,7 @@ const mockClientProjects = [
         status: "Completed",
       },
     ],
+    clientName: "Johnson Family",
   },
 ]
 
@@ -186,99 +191,138 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
   const [adminReply, setAdminReply] = useState("")
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
-  const [inviteMethod, setInviteMethod] = useState<"email" | "link">("email")
+  const [inviteMethod, setInviteMethod] = useState<"email" | "whatsapp">("email")
   const [selectedProjectForMessage, setSelectedProjectForMessage] = useState<number | null>(null)
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false)
   const [showWhatsAppIntegration, setShowWhatsAppIntegration] = useState(false)
   const [showPayPalModal, setShowPayPalModal] = useState(false)
-  const [monthlyInvoiceAmount, setMonthlyInvoiceAmount] = useState(185) // Default amount
+  const [monthlyInvoiceAmount, setMonthlyInvoiceAmount] = useState(185)
+  const [isTyping, setIsTyping] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(3)
 
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: "client",
-      text: "Hi @admin, I have some questions about the design progress.",
+      senderName: "John Smith",
+      text: "Hi @admin, I have some questions about the design progress for #123-oak-street.",
       time: "10:30 AM",
       isAdmin: false,
       mentions: ["admin"],
-      projectRef: null,
+      projectRef: 1,
+      projectTitle: "123 Oak Street, Beverly Hills, CA",
+      status: "read",
+      whatsappSync: true,
     },
     {
       id: 2,
       sender: "admin",
-      text: "Hello @john! I'd be happy to help. What would you like to know?",
+      senderName: "Sarah (Admin)",
+      text: "Hello @john! I'd be happy to help. The 3D rendering is 65% complete and should be ready by tomorrow.",
       time: "10:35 AM",
       isAdmin: true,
       mentions: ["john"],
-      projectRef: null,
+      projectRef: 1,
+      projectTitle: "123 Oak Street, Beverly Hills, CA",
+      status: "read",
+      whatsappSync: true,
     },
     {
       id: 3,
-      sender: "client",
-      text: "When will the 3D rendering be ready for #123-oak-street?",
-      time: "10:40 AM",
+      sender: "designer",
+      senderName: "Mike (Designer)",
+      text: "I've uploaded the latest 3D model for #123-oak-street. Please review the plant selections in the front yard area.",
+      time: "11:15 AM",
       isAdmin: false,
       mentions: [],
       projectRef: 1,
+      projectTitle: "123 Oak Street, Beverly Hills, CA",
+      status: "unread",
+      whatsappSync: false,
+      attachments: [{ type: "sketchup", name: "front-yard-v2.skp", size: "12.4 MB" }],
     },
     {
       id: 4,
       sender: "admin",
-      text: "The 3D rendering for #123-oak-street should be completed by tomorrow. I'll send you a preview as soon as it's ready.",
-      time: "10:45 AM",
+      senderName: "Sarah (Admin)",
+      text: "Great work @mike! @john, please check the new model and let us know your thoughts.",
+      time: "11:20 AM",
       isAdmin: true,
-      mentions: [],
+      mentions: ["mike", "john"],
       projectRef: 1,
-      attachments: [{ type: "image", name: "preview-render.jpg", size: "2.1 MB" }],
-    },
-    {
-      id: 5,
-      sender: "client",
-      text: "Great! Also, can we adjust the plant selection in the front yard? I've attached some reference photos.",
-      time: "11:00 AM",
-      isAdmin: false,
-      mentions: [],
-      projectRef: 1,
-      attachments: [
-        { type: "image", name: "reference-plants-1.jpg", size: "1.8 MB" },
-        { type: "image", name: "reference-plants-2.jpg", size: "2.3 MB" },
-      ],
-    },
-    {
-      id: 6,
-      sender: "admin",
-      text: "Perfect! I'll review the reference photos and make those adjustments. I'll show you the updated options by end of day.",
-      time: "11:05 AM",
-      isAdmin: true,
-      mentions: [],
-      projectRef: 1,
+      projectTitle: "123 Oak Street, Beverly Hills, CA",
+      status: "unread",
+      whatsappSync: true,
     },
   ])
 
-  const filteredProjects = mockClientProjects.filter((project) => {
+  const [filteredProjects, setFilteredProjects] = useState(mockClientProjects)
+  const [newMessage, setNewMessage] = useState("")
+  const [selectedMessageProject, setSelectedMessageProject] = useState<number | null>(null)
+  const [projects, setProjects] = useState(mockClientProjects)
+
+  const markMessageAsRead = (messageId: number) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((message) => (message.id === messageId ? { ...message, read: true } : message)),
+    )
+    setUnreadCount((prevCount) => (prevCount > 0 ? prevCount - 1 : prevCount))
+  }
+
+  const filteredProjectsList = mockClientProjects.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSearch
   })
 
   const handleSendMessage = () => {
-    if (message.trim()) {
-      const mentions = message.match(/@(\w+)/g)?.map((m) => m.substring(1)) || []
-      const projectRefs = message.match(/#[\w-]+/g)
+    if (newMessage.trim() && selectedMessageProject) {
+      const mentions = newMessage.match(/@(\w+)/g)?.map((m) => m.substring(1)) || []
+      const projectRefs = newMessage.match(/#[\w-]+/g)
 
-      const newMessage = {
+      const newMessageObj = {
         id: messages.length + 1,
         sender: "client",
-        text: message,
+        senderName: "John Smith",
+        text: newMessage,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         isAdmin: false,
         mentions,
-        projectRef: selectedProjectForMessage,
+        projectRef: selectedMessageProject,
+        projectTitle: projects.find((p) => p.id === selectedMessageProject)?.title,
+        status: "sent",
+        whatsappSync: showWhatsAppIntegration,
         attachments: [],
       }
-      setMessages([...messages, newMessage])
-      setMessage("")
-      setSelectedProjectForMessage(null)
+      setMessages([...messages, newMessageObj])
+      setNewMessage("")
+      setSelectedMessageProject(null)
+
+      if (showWhatsAppIntegration) {
+        handleWhatsAppSync(newMessageObj)
+      }
     }
+  }
+
+  const handleWhatsAppSync = (message: any) => {
+    const phoneNumber = "+1234567890" // Admin's WhatsApp number
+    const projectContext = message.projectTitle ? `[${message.projectTitle}] ` : ""
+    const whatsappMessage = `${projectContext}${message.text}`
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`
+
+    // In real implementation, this would use WhatsApp Business API
+    console.log("Syncing to WhatsApp:", whatsappMessage)
+  }
+
+  const handleWhatsAppInvite = () => {
+    const inviteMessage =
+      "You've been invited to collaborate on a landscape design project! Join our project dashboard: https://app.sketchupplaystore.com/invite/abc123"
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteMessage)}`
+    window.open(whatsappUrl, "_blank")
+  }
+
+  const handleJoinWhatsAppGroup = () => {
+    // In real implementation, this would be a dynamic group link
+    const groupLink = "https://chat.whatsapp.com/invite/landscape-project-123"
+    window.open(groupLink, "_blank")
   }
 
   const handleAdminReply = () => {
@@ -336,7 +380,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
 
   const handleWhatsAppIntegration = () => {
     const phoneNumber = "+1234567890" // Admin's WhatsApp number
-    const projectTitle = filteredProjects[0]?.title || "Project"
+    const projectTitle = filteredProjectsList[0]?.title || "Project"
     const whatsappMessage = `Hi! I have a question about my landscape design project: ${projectTitle}`
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`
     window.open(whatsappUrl, "_blank")
@@ -392,80 +436,81 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-slate-600 hover:bg-white hover:text-slate-800 rounded-xl px-3 h-8 text-xs transition-all duration-200 bg-white/80 backdrop-blur-sm border-slate-200 hover:shadow-sm"
+          onClick={() => onRoleSwitch("admin")}
+        >
+          Admin
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="text-slate-600 hover:bg-white hover:text-slate-800 rounded-xl px-3 h-8 text-xs transition-all duration-200 bg-white/80 backdrop-blur-sm border-slate-200 hover:shadow-sm"
+          onClick={() => onRoleSwitch("designer")}
+        >
+          Designer
+        </Button>
+        <Button
+          size="sm"
+          variant="default"
+          className="bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          Client
+        </Button>
+        {onLogout && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onLogout}
+            className="text-xs text-slate-500 hover:text-slate-700 px-2 h-6 rounded-lg transition-colors"
+          >
+            Logout
+          </Button>
+        )}
+      </div>
+
+      <header className="sticky top-0 z-40 border-b border-white/20 bg-white/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 shadow-sm">
+            <div className="flex items-center gap-4 animate-slide-up">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-lg">
                 <LayoutDashboard className="h-5 w-5 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-slate-900">Client Dashboard</h1>
-                <p className="text-sm text-slate-500">Track your landscape design progress</p>
+                <p className="text-sm text-slate-500">My Projects & Communication</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 pl-9 border-slate-200 focus:border-slate-400 focus:ring-slate-400/20 rounded-lg"
+                  className="w-64 pl-9 border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20 rounded-xl bg-white/50 backdrop-blur-sm transition-all duration-200"
                 />
               </div>
 
-              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-slate-600 hover:bg-white hover:text-slate-900 rounded-md px-3 h-8 transition-colors"
-                  onClick={() => onRoleSwitch("admin")}
-                >
-                  Admin
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-slate-600 hover:bg-white hover:text-slate-900 rounded-md px-3 h-8 transition-colors"
-                  onClick={() => onRoleSwitch("designer")}
-                >
-                  Designer
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="bg-slate-900 text-white hover:bg-slate-800 rounded-md px-3 h-8 shadow-sm"
-                >
-                  Client
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 text-slate-700">
-                <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-sm">
                   <User className="h-4 w-4 text-slate-600" />
                 </div>
-                <span>Everlasting</span>
-                {onLogout && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onLogout}
-                    className="text-slate-500 hover:text-slate-900 px-3 h-7"
-                  >
-                    Logout
-                  </Button>
-                )}
+                <span className="font-medium">{filteredProjectsList[0]?.clientName}</span>
               </div>
             </div>
           </div>
+
           <nav className="flex items-center gap-1 px-6 pb-3">
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg px-4 h-9 shadow-sm"
+              className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
             >
               <LayoutDashboard className="h-4 w-4" />
               My Projects
@@ -477,112 +522,134 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
       <div className="flex max-w-7xl mx-auto">
         <main className="flex-1 p-6">
           <div className="space-y-4">
-            <div className="space-y-3 max-w-3xl">
-              {filteredProjects.map((project) => (
+            <div className="grid gap-4">
+              {filteredProjectsList.map((project, index) => (
                 <Card
                   key={project.id}
                   id={`project-${project.id}`}
-                  className="border-slate-200 hover:border-slate-300 transition-colors bg-white"
+                  className="border-white/50 bg-white/70 backdrop-blur-sm shadow-lg hover:bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-up"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-base font-semibold text-slate-900">{project.title}</h3>
+                          <h3 className="text-lg font-semibold text-slate-900 truncate group-hover:text-emerald-700 transition-colors">
+                            {project.title}
+                          </h3>
                           {project.urgent && (
-                            <Badge className="bg-red-50 text-red-700 border-red-200">
+                            <Badge className="bg-gradient-to-r from-red-50 to-red-100 text-red-700 border-red-200/60 flex-shrink-0 animate-pulse shadow-sm">
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Urgent
                             </Badge>
                           )}
                         </div>
-                        <Badge className={getStatusColor(project.status)}>{project.status}</Badge>
 
-                        <div className="flex items-center gap-4 text-sm text-slate-500 mt-2 mb-3">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            Due: {new Date(project.dueDate).toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">${project.totalPrice}</span>
-                          </div>
-                        </div>
-
-                        {project.previews && project.previews.length > 0 && (
-                          <div className="mb-3">
-                            <h4 className="text-sm font-medium text-slate-700 mb-2">Project Previews</h4>
-                            <div className="flex gap-2">
-                              {project.previews.map((preview, index) => (
-                                <div key={index} className="relative group">
-                                  <img
-                                    src={preview.url || "/placeholder.svg"}
-                                    alt={`Preview ${index + 1}`}
-                                    className="w-20 h-16 object-cover rounded-lg border border-slate-200 hover:border-slate-300 transition-colors cursor-pointer"
-                                    onClick={() =>
-                                      handleDownloadFile({ name: `preview-${index + 1}.jpg`, url: preview.url })
-                                    }
-                                  />
-                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
-                                    <Download className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                                  </div>
-                                </div>
-                              ))}
+                        <div className="flex items-center gap-4 mb-3">
+                          <Badge className={getStatusColor(project.status)}>{project.status}</Badge>
+                          <div className="flex items-center gap-4 text-sm text-slate-600">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              Due: {new Date(project.dueDate).toLocaleDateString()}
                             </div>
                           </div>
-                        )}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleDownloadAllFiles(project.files)}
-                          className="border-slate-200 hover:border-slate-300 bg-transparent h-8 px-3"
+                          className="border-white/60 hover:border-emerald-300 hover:bg-emerald-50 bg-white/90 backdrop-blur-sm h-9 px-4 transition-all duration-200 shadow-sm hover:shadow-md"
                         >
-                          <FolderDown className="h-4 w-4 mr-1" />
+                          <FolderDown className="h-4 w-4 mr-2" />
                           Download
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedProject(selectedProject === project.id ? null : project.id)}
-                          className="border-slate-200 hover:border-slate-300 h-8 w-8 p-0"
+                          className="border-white/60 hover:border-emerald-300 hover:bg-emerald-50 bg-white/90 backdrop-blur-sm h-9 w-9 p-0 transition-all duration-200 shadow-sm hover:shadow-md"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
 
-                    <div className="mb-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-slate-700">Progress</span>
-                        <span className="text-sm text-slate-500">{project.progress}%</span>
+                    {project.previews && project.previews.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-slate-700 mb-3">Project Previews</h4>
+                        <div className="grid grid-cols-4 gap-3">
+                          {project.previews.map((preview, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={preview.url || "/placeholder.svg"}
+                                alt={`Preview ${index + 1}`}
+                                className="w-full aspect-[4/3] object-cover rounded-lg border border-white/60 hover:border-emerald-300 transition-all cursor-pointer hover:shadow-lg shadow-sm"
+                                onClick={() =>
+                                  handleDownloadFile({ name: `preview-${index + 1}.jpg`, url: preview.url })
+                                }
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent group-hover:from-black/40 transition-all rounded-lg flex items-center justify-center">
+                                <Download className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
+                              </div>
+                              <div className="absolute bottom-2 left-2 right-2">
+                                <div className="bg-white/95 backdrop-blur-sm rounded px-2 py-1 text-xs font-medium text-slate-700 truncate opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                  {preview.phase}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <Progress value={project.progress} className="h-2" />
+                    )}
+
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-slate-700">Project Progress</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-emerald-700">{project.progress}%</span>
+                          <span className="text-xs text-slate-500">• {project.currentPhase}</span>
+                        </div>
+                      </div>
+                      <Progress value={project.progress} className="h-3 bg-slate-100/80" />
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-slate-500">
-                        <FileText className="h-4 w-4" />
-                        {project.files.length} files
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <FileText className="h-4 w-4" />
+                          <span className="font-medium">{project.files.length}</span>
+                          <span>files available</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        Started {new Date(project.startDate).toLocaleDateString()}
                       </div>
                     </div>
 
                     {selectedProject === project.id && (
-                      <div className="mt-3 pt-3 border-t border-slate-200">
-                        <h4 className="font-medium mb-2 text-slate-900">Recent Updates</h4>
-                        <div className="space-y-2">
+                      <div className="mt-4 pt-4 border-t border-white/60 animate-slide-down">
+                        <h4 className="font-medium mb-3 text-slate-900">Recent Updates</h4>
+                        <div className="space-y-3">
                           {project.updates.map((update, index) => (
-                            <div key={index} className="bg-slate-50 rounded-lg p-3">
-                              <div className="flex items-center gap-2 text-sm text-slate-600 mb-1">
-                                <span className="font-medium">{update.phase}</span>
-                                <span>•</span>
-                                <span>{new Date(update.date).toLocaleDateString()}</span>
-                                <Badge className={getStatusColor(update.status)} variant="outline">
-                                  {update.status}
-                                </Badge>
+                            <div
+                              key={index}
+                              className={`flex ${update.status === "Complete" ? "justify-start" : "justify-end"}`}
+                            >
+                              <div
+                                className={`max-w-[80%] p-3 rounded-xl transition-all duration-200 ${
+                                  update.status === "Complete"
+                                    ? "bg-white/90 border border-white/60 text-slate-900 backdrop-blur-sm shadow-sm"
+                                    : "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-500/25"
+                                }`}
+                              >
+                                <div className="text-sm">{update.note}</div>
+                                <div className="text-xs opacity-75 mt-1">
+                                  {new Date(update.date).toLocaleDateString()}
+                                </div>
                               </div>
-                              <p className="text-sm text-slate-700">{update.note}</p>
                             </div>
                           ))}
                         </div>
@@ -595,140 +662,148 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
           </div>
         </main>
 
-        <aside className="w-96 border-l border-slate-200 bg-white p-6 space-y-6">
-          <Card className="border-slate-200 bg-white">
+        <aside className="w-80 border-l border-white/20 bg-white/70 backdrop-blur-xl p-6">
+          <Card className="border-white/50 bg-white/80 backdrop-blur-sm shadow-lg animate-slide-up">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-slate-600" />
-                  <h3 className="font-semibold text-slate-900">Project Messages</h3>
+                  <MessageSquare className="h-5 w-5 text-emerald-600" />
+                  <h3 className="font-semibold text-slate-800">Messages</h3>
                 </div>
-                <div className="flex gap-1">
-                  <Button
+                {unreadCount > 0 && (
+                  <Badge
                     variant="outline"
-                    size="sm"
-                    onClick={() => setShowWhatsAppIntegration(!showWhatsAppIntegration)}
-                    className="border-slate-200 hover:border-green-300 hover:bg-green-50 h-8 px-3"
+                    className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs rounded-full px-2 py-1"
                   >
-                    <Phone className="h-4 w-4 mr-1 text-green-600" />
-                    WhatsApp
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowInviteModal(true)}
-                    className="border-slate-200 hover:border-slate-300 h-8 px-3"
-                  >
-                    <UserPlus className="h-4 w-4 mr-1" />
-                    Invite
-                  </Button>
-                </div>
+                    {unreadCount} new
+                  </Badge>
+                )}
               </div>
 
-              {/* Messages Display Area */}
-              <div className="h-48 overflow-y-auto border border-slate-200 rounded-lg p-3 mb-4 bg-slate-50">
-                <div className="space-y-3">
-                  {messages.slice(-6).map((msg) => (
-                    <div key={msg.id} className={`flex ${msg.isAdmin ? "justify-start" : "justify-end"}`}>
-                      <div
-                        className={`max-w-[80%] p-2 rounded-lg ${
-                          msg.isAdmin ? "bg-white border border-slate-200 text-slate-900" : "bg-slate-900 text-white"
-                        }`}
-                      >
-                        <div className="text-sm">{renderMessageText(msg.text, msg.mentions, msg.projectRef)}</div>
-                        {msg.attachments && msg.attachments.length > 0 && (
-                          <div className="mt-2 space-y-1">
-                            {msg.attachments.map((attachment, idx) => (
-                              <div key={idx} className="text-xs opacity-75 flex items-center gap-1">
-                                <FileText className="h-3 w-3" />
-                                {attachment.name} ({attachment.size})
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <div className="text-xs opacity-75 mt-1">{msg.time}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowWhatsAppIntegration(!showWhatsAppIntegration)}
+                  className={`gap-2 bg-white/50 backdrop-blur-sm border-slate-200 hover:bg-white hover:shadow-sm transition-all duration-200 rounded-xl ${
+                    showWhatsAppIntegration ? "bg-green-50 border-green-300 text-green-700" : ""
+                  }`}
+                >
+                  <Phone className="h-4 w-4" />
+                  WhatsApp
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowInviteModal(true)}
+                  className="gap-2 bg-white/50 backdrop-blur-sm border-slate-200 hover:bg-white hover:shadow-sm transition-all duration-200 rounded-xl"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  Invite
+                </Button>
               </div>
 
-              {/* Message Input Area */}
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Type your message... Use @admin to mention, #project-name to reference"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                    className="flex-1 border-slate-200 focus:border-slate-400"
-                  />
-                  <Button
-                    onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
-                    variant="outline"
-                    size="sm"
-                    className="border-slate-200 hover:border-slate-300 h-10 w-10 p-0"
-                  >
-                    <FileText className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {showAttachmentMenu && (
-                  <div className="flex gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200">
+              {showWhatsAppIntegration && (
+                <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-green-100/50 border border-green-200 rounded-xl animate-slide-down backdrop-blur-sm">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Phone className="h-4 w-4 text-green-600" />
+                    <span className="font-medium text-green-800">WhatsApp Integration</span>
+                    <Badge className="bg-green-100 text-green-700 text-xs rounded-full px-2 py-1">Active</Badge>
+                  </div>
+                  <p className="text-sm text-green-700 mb-3">Messages will sync with your WhatsApp group</p>
+                  <div className="flex gap-2">
                     <Button
-                      variant="ghost"
                       size="sm"
-                      onClick={() => handleFileAttachment("image")}
-                      className="flex-1 h-8"
+                      onClick={handleJoinWhatsAppGroup}
+                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 h-8 flex-1 text-xs shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
                     >
-                      📷 Image
+                      <Users className="h-3 w-3 mr-1" />
+                      Join Group
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => handleFileAttachment("pdf")}
-                      className="flex-1 h-8"
+                      onClick={handleWhatsAppSync}
+                      className="border-green-200 hover:border-green-300 h-8 flex-1 text-xs bg-white/80 backdrop-blur-sm rounded-xl transition-all duration-200"
                     >
-                      📄 PDF
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileAttachment("link")}
-                      className="flex-1 h-8"
-                    >
-                      🔗 Link
+                      <Zap className="h-3 w-3 mr-1" />
+                      Sync Now
                     </Button>
                   </div>
-                )}
+                </div>
+              )}
 
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!message.trim()}
-                  className="w-full bg-slate-900 hover:bg-slate-800 h-10"
+              <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
+                {messages.slice(-4).map((message) => (
+                  <div
+                    key={message.id}
+                    className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-muted/50 ${
+                      !message.read ? "bg-primary/5 border-l-2 border-primary" : "bg-muted/30"
+                    }`}
+                    onClick={() => markMessageAsRead(message.id)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-card-foreground capitalize">{message.sender}</p>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{message.text}</p>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{message.time}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <select
+                  value={selectedMessageProject || ""}
+                  onChange={(e) => setSelectedMessageProject(Number(e.target.value))}
+                  className="w-full p-2 text-sm border border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
                 >
-                  Send Message
-                </Button>
+                  <option value="">Select project to message...</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.title}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Type your message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                    className="flex-1 text-sm bg-white/80 backdrop-blur-sm rounded-lg border border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20 transition-all duration-200"
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim() || !selectedMessageProject}
+                    size="sm"
+                    className="px-3 transition-all duration-200 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg shadow-lg hover:shadow-xl"
+                  >
+                    Send
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200 bg-white">
+          <Card className="border-white/60 bg-white/90 backdrop-blur-md shadow-lg">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-sm">
                     <User className="h-4 w-4 text-blue-600" />
                   </div>
                   <span className="text-sm font-medium text-slate-700">Admin Quick Reply</span>
                 </div>
-                <Badge variant="outline" className="h-6">
+                <Badge variant="outline" className="h-6 border-emerald-200 text-emerald-700 bg-emerald-50">
                   2 new
                 </Badge>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-md">
+                <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-slate-50/80 to-white/80 rounded-md backdrop-blur-sm shadow-sm">
                   <CheckCircle className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900">Milestone Completed</p>
@@ -737,7 +812,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-md">
+                <div className="flex items-start gap-3 p-3 bg-gradient-to-r from-slate-50/80 to-white/80 rounded-md backdrop-blur-sm shadow-sm">
                   <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900">Review Required</p>
@@ -749,11 +824,11 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200 bg-slate-50">
+          <Card className="border-white/60 bg-gradient-to-br from-slate-50/90 to-white/90 backdrop-blur-md shadow-lg">
             <CardContent className="p-4">
               <h3 className="font-semibold mb-3 text-slate-900">Project Overview</h3>
               <div className="space-y-2">
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mb-4 p-3 bg-gradient-to-r from-blue-50/90 to-blue-100/80 border border-blue-200/60 rounded-lg backdrop-blur-sm shadow-sm">
                   <div className="flex items-center gap-2 mb-2">
                     <CreditCard className="h-4 w-4 text-blue-600" />
                     <span className="font-medium text-blue-800">Monthly Invoice</span>
@@ -763,46 +838,46 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                     <Button
                       size="sm"
                       onClick={() => setShowPayPalModal(true)}
-                      className="bg-blue-600 hover:bg-blue-700 h-8 flex-1"
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 h-8 flex-1 shadow-sm"
                     >
                       <DollarSign className="h-4 w-4 mr-1" />
-                      Pay Invoice
+                      Pay ${monthlyInvoiceAmount}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleSendInvoice}
-                      className="border-blue-200 hover:border-blue-300 h-8 flex-1 bg-transparent"
+                      className="border-blue-200 hover:border-blue-300 h-8 flex-1 bg-white/90 backdrop-blur-sm"
                     >
                       Request Invoice
                     </Button>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-white rounded-md border border-slate-100">
+                <div className="flex items-center justify-between p-3 bg-white/90 rounded-md border border-white/60 backdrop-blur-sm shadow-sm">
                   <div>
                     <p className="text-sm text-slate-500 font-medium">Total Projects</p>
-                    <p className="text-lg font-semibold text-slate-900">{filteredProjects.length}</p>
+                    <p className="text-lg font-semibold text-slate-900">{filteredProjectsList.length}</p>
                   </div>
                   <Home className="h-4 w-4 text-slate-400" />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-white rounded-md border border-slate-100">
+                <div className="flex items-center justify-between p-3 bg-white/90 rounded-md border border-white/60 backdrop-blur-sm shadow-sm">
                   <div>
                     <p className="text-sm text-slate-500 font-medium">In Progress</p>
                     <p className="text-lg font-semibold text-slate-900">
-                      {filteredProjects.filter((p) => p.status === "In Progress").length}
+                      {filteredProjectsList.filter((p) => p.status === "In Progress").length}
                     </p>
                   </div>
                   <Clock className="h-4 w-4 text-slate-400" />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-white rounded-md border border-slate-100">
+                <div className="flex items-center justify-between p-3 bg-white/90 rounded-md border border-white/60 backdrop-blur-sm shadow-sm">
                   <div>
                     <p className="text-sm text-slate-500 font-medium">Total Earnings</p>
-                    <p className="text-lg font-semibold text-slate-900">
-                      ${filteredProjects.reduce((sum, p) => sum + p.totalPrice, 0)}
+                    <p className="text-lg font-semibold text-emerald-700">
+                      ${filteredProjectsList.reduce((sum, p) => sum + p.totalPrice, 0)}
                     </p>
                   </div>
-                  <CheckCircle className="h-4 w-4 text-slate-400" />
+                  <CheckCircle className="h-4 w-4 text-emerald-600" />
                 </div>
               </div>
             </CardContent>
@@ -810,19 +885,84 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
         </aside>
       </div>
 
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <Card className="w-96 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl animate-slide-up">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-bold text-slate-800">Invite Team Member</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowInviteModal(false)}
+                  className="h-8 w-8 p-0 rounded-xl hover:bg-slate-100 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-slate-600">Add a new team member to your project</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Button
+                  variant={inviteMethod === "email" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setInviteMethod("email")}
+                  className="flex-1 rounded-xl transition-all duration-200"
+                >
+                  <Mail className="h-4 w-4 mr-1" />
+                  Email
+                </Button>
+                <Button
+                  variant={inviteMethod === "whatsapp" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setInviteMethod("whatsapp")}
+                  className="flex-1 rounded-xl transition-all duration-200"
+                >
+                  <Phone className="h-4 w-4 mr-1" />
+                  WhatsApp
+                </Button>
+              </div>
+
+              {inviteMethod === "email" && (
+                <Input
+                  placeholder="Enter email address"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="border-slate-200 focus:border-emerald-400 rounded-xl bg-white/90 backdrop-blur-sm"
+                />
+              )}
+
+              <Button
+                onClick={inviteMethod === "whatsapp" ? handleWhatsAppInvite : handleInviteClient}
+                disabled={inviteMethod === "email" && !inviteEmail.trim()}
+                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                {inviteMethod === "email" ? "Send Email Invitation" : "Send WhatsApp Invitation"}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {showPayPalModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-96 border-slate-200">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <Card className="w-96 border-white/50 bg-white/95 backdrop-blur-xl shadow-2xl animate-slide-up">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-slate-900">PayPal Invoice Payment</h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowPayPalModal(false)} className="h-6 w-6 p-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowPayPalModal(false)}
+                  className="h-8 w-8 p-0 rounded-xl hover:bg-slate-100 transition-colors"
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
 
               <div className="space-y-4">
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-xl border border-blue-200 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-blue-900">Invoice Payment</span>
                     <span className="text-lg font-bold text-blue-900">${monthlyInvoiceAmount}</span>
@@ -832,7 +972,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
 
                 <Button
                   onClick={handlePayPalPayment}
-                  className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base font-medium"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
                 >
                   <CreditCard className="h-5 w-5 mr-2" />
                   Pay with PayPal
@@ -841,61 +981,6 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                 <p className="text-sm text-slate-500 text-center">
                   Secure payment processing via PayPal. Your payment information is protected.
                 </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-96 border-slate-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">Invite Client</h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowInviteModal(false)} className="h-6 w-6 p-0">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <Button
-                    variant={inviteMethod === "email" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setInviteMethod("email")}
-                    className="flex-1"
-                  >
-                    <Mail className="h-4 w-4 mr-1" />
-                    Email
-                  </Button>
-                  <Button
-                    variant={inviteMethod === "link" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setInviteMethod("link")}
-                    className="flex-1"
-                  >
-                    <Link className="h-4 w-4 mr-1" />
-                    Link
-                  </Button>
-                </div>
-
-                {inviteMethod === "email" && (
-                  <Input
-                    placeholder="Enter email address"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    className="border-slate-200 focus:border-slate-400"
-                  />
-                )}
-
-                <Button
-                  onClick={handleInviteClient}
-                  disabled={inviteMethod === "email" && !inviteEmail.trim()}
-                  className="w-full bg-slate-900 hover:bg-slate-800"
-                >
-                  {inviteMethod === "email" ? "Send Invitation" : "Copy Invite Link"}
-                </Button>
               </div>
             </CardContent>
           </Card>

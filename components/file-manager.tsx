@@ -173,35 +173,42 @@ export function FileManager({ onBack }: FileManagerProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b border-gray-200 bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50/30">
+      <header className="border-b border-emerald-100/50 bg-white/80 backdrop-blur-xl">
         <div className="flex h-16 items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onBack} className="gap-2 text-gray-600 hover:text-gray-900">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="gap-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-all duration-200"
+            >
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
-            <div className="h-6 w-px bg-gray-200" />
+            <div className="h-6 w-px bg-emerald-200" />
             <div className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5 text-gray-600" />
-              <h1 className="text-xl font-semibold text-gray-900">Files</h1>
+              <FolderOpen className="h-5 w-5 text-emerald-600" />
+              <h1 className="text-xl font-semibold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent">
+                Files
+              </h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 text-gray-600 border-gray-200 hover:bg-gray-50 bg-transparent"
+              className="gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50 bg-white/50 backdrop-blur-sm rounded-xl transition-all duration-200"
             >
               <Filter className="h-4 w-4" />
               Filter
             </Button>
-            <div className="flex items-center border border-gray-200 rounded-lg">
+            <div className="flex items-center border border-emerald-200 rounded-xl bg-white/50 backdrop-blur-sm">
               <Button
                 variant={viewMode === "grid" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("grid")}
-                className="rounded-r-none"
+                className={`rounded-r-none ${viewMode === "grid" ? "bg-emerald-600 hover:bg-emerald-700" : "hover:bg-emerald-50"}`}
               >
                 <Grid3X3 className="h-4 w-4" />
               </Button>
@@ -209,12 +216,15 @@ export function FileManager({ onBack }: FileManagerProps) {
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className="rounded-l-none"
+                className={`rounded-l-none ${viewMode === "list" ? "bg-emerald-600 hover:bg-emerald-700" : "hover:bg-emerald-50"}`}
               >
                 <List className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="sm" className="gap-2 bg-slate-900 hover:bg-slate-800 text-white">
+            <Button
+              size="sm"
+              className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            >
               <Upload className="h-4 w-4" />
               Upload Files
             </Button>
@@ -225,15 +235,15 @@ export function FileManager({ onBack }: FileManagerProps) {
       <main className="p-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="relative w-96">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-400" />
             <Input
               placeholder="Search files, projects, or uploaders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-gray-200"
+              className="pl-10 border-emerald-200 bg-white/50 backdrop-blur-sm rounded-xl focus:border-emerald-400 focus:ring-emerald-400/20"
             />
           </div>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-4 text-sm text-emerald-600/70">
             <span>{filteredFiles.length} files</span>
             <span>•</span>
             <span>{mockFiles.reduce((acc, file) => acc + Number.parseFloat(file.size), 0).toFixed(1)} MB total</span>
@@ -243,8 +253,8 @@ export function FileManager({ onBack }: FileManagerProps) {
         </div>
 
         <Card
-          className={`mb-6 border-2 border-dashed transition-colors ${
-            dragActive ? "border-slate-400 bg-slate-50" : "border-gray-300"
+          className={`mb-6 border-2 border-dashed transition-all duration-300 rounded-2xl bg-white/50 backdrop-blur-sm shadow-lg hover:shadow-xl ${
+            dragActive ? "border-emerald-400 bg-emerald-50/50" : "border-emerald-300"
           }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -252,12 +262,14 @@ export function FileManager({ onBack }: FileManagerProps) {
           onDrop={handleDrop}
         >
           <CardContent className="p-8 text-center">
-            <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-900">Drop files here to upload</h3>
-            <p className="text-gray-500 mb-4">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
+              <Upload className="h-8 w-8 text-emerald-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-emerald-900">Drop files here to upload</h3>
+            <p className="text-emerald-600/70 mb-4">
               Drag and drop your .pln, .skp, .jpg, .png, .pdf files (up to 10GB per project)
             </p>
-            <Button className="gap-2 bg-slate-900 hover:bg-slate-800 text-white">
+            <Button className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
               <Upload className="h-4 w-4" />
               Choose Files
             </Button>
@@ -265,11 +277,18 @@ export function FileManager({ onBack }: FileManagerProps) {
         </Card>
 
         {viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredFiles.map((file) => (
-              <Card key={file.id} className="border-gray-200 shadow-sm hover:shadow-md transition-shadow group">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredFiles.map((file, index) => (
+              <Card
+                key={file.id}
+                className="border-emerald-200/50 bg-white/70 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 group rounded-2xl hover:-translate-y-1"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                  animation: "slideUp 0.6s ease-out forwards",
+                }}
+              >
                 <CardContent className="p-4">
-                  <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <div className="aspect-square mb-3 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
                     <img
                       src={file.thumbnail || "/placeholder.svg"}
                       alt={file.name}
@@ -279,36 +298,42 @@ export function FileManager({ onBack }: FileManagerProps) {
 
                   <div className="space-y-2">
                     <div className="flex items-start justify-between">
-                      <h3 className="font-medium text-sm text-gray-900 truncate pr-2">{file.name}</h3>
+                      <h3 className="font-medium text-sm text-emerald-900 truncate pr-2">{file.name}</h3>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 hover:text-gray-700"
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="gap-2">
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-white/90 backdrop-blur-sm border-emerald-200 rounded-xl"
+                        >
+                          <DropdownMenuItem className="gap-2 hover:bg-emerald-50 rounded-lg">
                             <Eye className="h-4 w-4" />
                             Preview
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem className="gap-2 hover:bg-emerald-50 rounded-lg">
                             <Download className="h-4 w-4" />
                             Download
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => copyFileLink(file.id)}>
+                          <DropdownMenuItem
+                            className="gap-2 hover:bg-emerald-50 rounded-lg"
+                            onClick={() => copyFileLink(file.id)}
+                          >
                             <Copy className="h-4 w-4" />
                             Copy Link
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem className="gap-2 hover:bg-emerald-50 rounded-lg">
                             <ExternalLink className="h-4 w-4" />
                             Open in Wasabi
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="gap-2 text-red-600">
+                          <DropdownMenuItem className="gap-2 text-red-600 hover:bg-red-50 rounded-lg">
                             <Trash2 className="h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
@@ -316,15 +341,15 @@ export function FileManager({ onBack }: FileManagerProps) {
                       </DropdownMenu>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-emerald-600/70">
                       <span>{file.size}</span>
-                      <Badge className={getStatusColor(file.status)} size="sm">
+                      <Badge className={`${getStatusColor(file.status)} rounded-lg`} size="sm">
                         {file.status}
                       </Badge>
                     </div>
 
-                    <div className="text-xs text-gray-500">
-                      <p className="truncate font-medium text-gray-700">{file.project}</p>
+                    <div className="text-xs text-emerald-600/70">
+                      <p className="truncate font-medium text-emerald-700">{file.project}</p>
                       <p>by {file.uploader}</p>
                     </div>
                   </div>
@@ -333,28 +358,35 @@ export function FileManager({ onBack }: FileManagerProps) {
             ))}
           </div>
         ) : (
-          <Card className="border-gray-200 shadow-sm">
+          <Card className="border-emerald-200/50 bg-white/70 backdrop-blur-sm shadow-lg rounded-2xl">
             <CardContent className="p-0">
-              <div className="divide-y divide-gray-200">
-                {filteredFiles.map((file) => (
-                  <div key={file.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+              <div className="divide-y divide-emerald-100">
+                {filteredFiles.map((file, index) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center gap-4 p-4 hover:bg-emerald-50/50 transition-all duration-200 first:rounded-t-2xl last:rounded-b-2xl"
+                    style={{
+                      animationDelay: `${index * 50}ms`,
+                      animation: "slideUp 0.4s ease-out forwards",
+                    }}
+                  >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       {getFileIcon(file.type)}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
-                        <p className="text-sm text-gray-600 truncate">{file.project}</p>
+                        <h3 className="font-medium text-emerald-900 truncate">{file.name}</h3>
+                        <p className="text-sm text-emerald-600/70 truncate">{file.project}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <Badge className={getStatusColor(file.status)} size="sm">
+                    <div className="flex items-center gap-4 text-sm text-emerald-600/70">
+                      <Badge className={`${getStatusColor(file.status)} rounded-lg`} size="sm">
                         {file.status}
                       </Badge>
                       <span className="w-16 text-right">{file.size}</span>
                       <div className="flex items-center gap-2 w-32">
                         <Avatar className="h-6 w-6">
                           <AvatarImage src="/placeholder.svg" />
-                          <AvatarFallback className="text-xs bg-gray-100 text-gray-600">
+                          <AvatarFallback className="text-xs bg-emerald-100 text-emerald-600">
                             {file.uploader
                               .split(" ")
                               .map((n) => n[0])
@@ -368,29 +400,39 @@ export function FileManager({ onBack }: FileManagerProps) {
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all duration-200"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="gap-2">
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-white/90 backdrop-blur-sm border-emerald-200 rounded-xl"
+                      >
+                        <DropdownMenuItem className="gap-2 hover:bg-emerald-50 rounded-lg">
                           <Eye className="h-4 w-4" />
                           Preview
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
+                        <DropdownMenuItem className="gap-2 hover:bg-emerald-50 rounded-lg">
                           <Download className="h-4 w-4" />
                           Download
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2" onClick={() => copyFileLink(file.id)}>
+                        <DropdownMenuItem
+                          className="gap-2 hover:bg-emerald-50 rounded-lg"
+                          onClick={() => copyFileLink(file.id)}
+                        >
                           <Copy className="h-4 w-4" />
                           Copy Link
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
+                        <DropdownMenuItem className="gap-2 hover:bg-emerald-50 rounded-lg">
                           <ExternalLink className="h-4 w-4" />
                           Open in Wasabi
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 text-red-600">
+                        <DropdownMenuItem className="gap-2 text-red-600 hover:bg-red-50 rounded-lg">
                           <Trash2 className="h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
