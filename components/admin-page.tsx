@@ -28,6 +28,7 @@ import {
   Bell,
   TrendingUp,
   Download,
+  Home,
 } from "lucide-react"
 
 const mockProjects = [
@@ -358,6 +359,15 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
               <Button
                 variant="ghost"
                 size="sm"
+                className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
+                onClick={() => onNavigate("landing")}
+              >
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
               >
                 <LayoutDashboard className="h-4 w-4" />
@@ -376,10 +386,10 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                 variant="ghost"
                 size="sm"
                 className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
-                onClick={() => onNavigate("playstore")}
+                onClick={() => onNavigate("models")}
               >
                 <Download className="h-4 w-4" />
-                Model Library
+                Download Models
               </Button>
             </nav>
           </div>

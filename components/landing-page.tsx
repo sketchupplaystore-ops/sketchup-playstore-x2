@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 
 interface LandingPageProps {
-  onGetStarted: (role: "admin" | "designer" | "client") => void
+  onGetStarted: (role: "admin" | "designer" | "client" | "models") => void
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
@@ -174,7 +174,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 variant="outline"
                 size="sm"
                 className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 bg-transparent"
-                onClick={() => onGetStarted("designer")}
+                onClick={() => onGetStarted("models")}
               >
                 <Download className="h-4 w-4" />
                 Model Library
@@ -207,7 +207,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   variant="outline"
                   size="sm"
                   className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 justify-start bg-transparent"
-                  onClick={() => onGetStarted("designer")}
+                  onClick={() => onGetStarted("models")}
                 >
                   <Download className="h-4 w-4" />
                   Model Library
@@ -240,7 +240,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
-                onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() => onGetStarted("models")}
               >
                 Download Free Models
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -346,7 +346,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 key={index}
                 className="glass hover-lift border-0 shadow-lg shadow-emerald-500/5 animate-slide-up group cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10"
                 style={{ animationDelay: category.delay }}
-                onClick={() => onGetStarted("designer")}
+                onClick={() => onGetStarted("models")}
               >
                 <CardContent className="p-6 text-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-emerald-200/50">
@@ -369,7 +369,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
-                onClick={() => onGetStarted("designer")}
+                onClick={() => onGetStarted("models")}
               >
                 <Download className="mr-2 h-5 w-5" />
                 Access Full Library

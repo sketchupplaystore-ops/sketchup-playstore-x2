@@ -387,6 +387,16 @@ export default function SketchUpPlaystore() {
             </div>
 
             <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 bg-transparent"
+                onClick={() => (window.location.href = "/")}
+              >
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
