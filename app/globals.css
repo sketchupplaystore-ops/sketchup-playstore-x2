@@ -173,12 +173,12 @@
     box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.1);
   }
 
-  /* Added pulse animation for notifications */
   .animate-pulse-slow {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
 
+/* Added new keyframes for blue glass animations */
 @keyframes fadeIn {
   from {
     opacity: 0;

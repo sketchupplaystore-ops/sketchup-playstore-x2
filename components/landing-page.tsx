@@ -50,33 +50,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     },
   ]
 
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Homeowner",
-      content:
-        "The team transformed our backyard into a stunning oasis. The 3D visualizations helped us see exactly what we were getting.",
-      rating: 5,
-      image: "/professional-woman-diverse.png",
-    },
-    {
-      name: "Michael Chen",
-      role: "Property Developer",
-      content:
-        "Outstanding project management and design quality. Every milestone was delivered on time with exceptional attention to detail.",
-      rating: 5,
-      image: "/confident-businessman.png",
-    },
-    {
-      name: "Emma Rodriguez",
-      role: "Landscape Architect",
-      content:
-        "As a designer on this platform, I love the collaborative tools and the quality of projects. It's elevated my work significantly.",
-      rating: 5,
-      image: "/female-architect.png",
-    },
-  ]
-
   const libraryCategories = [
     {
       icon: <Shield className="h-8 w-8 text-emerald-600" />,
@@ -129,27 +102,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     },
   ]
 
-  const roleCards = [
-    {
-      role: "designer" as const,
-      title: "Designer",
-      description: "Upload work, track milestones, and collaborate with clients and admin, download free models",
-      features: ["Upload work", "Track milestones", "Collaborate with clients and admin", "Download free models"],
-      color: "bg-gradient-to-br from-emerald-400 to-emerald-500",
-    },
-    {
-      role: "client" as const,
-      title: "Client",
-      description: "Share project details, view progress, and download final files",
-      features: ["Share project details", "View progress", "Download final files"],
-      color: "bg-gradient-to-br from-emerald-300 to-emerald-400",
-    },
-  ]
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/20 backdrop-blur-xl">
+      <header className="fixed top-0 left-0 right-0 z-50 glass border-b backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -163,26 +119,26 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <nav className="hidden md:flex items-center space-x-8">
               <button
                 onClick={() => onGetStarted("designer")}
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
               >
                 Designer
               </button>
               <button
                 onClick={() => onGetStarted("client")}
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
               >
                 Client
               </button>
               <button
                 onClick={() => onGetStarted("public-models")}
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
               >
                 Download Models
               </button>
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 bg-transparent"
+                className="gap-2 bg-transparent"
                 onClick={() => onGetStarted("public-models")}
               >
                 <Download className="h-4 w-4" />
@@ -205,26 +161,26 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={() => onGetStarted("designer")}
-                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left"
+                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left font-medium"
                 >
                   Designer
                 </button>
                 <button
                   onClick={() => onGetStarted("client")}
-                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left"
+                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left font-medium"
                 >
                   Client
                 </button>
                 <button
                   onClick={() => onGetStarted("public-models")}
-                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left"
+                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left font-medium"
                 >
                   Download Models
                 </button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 justify-start bg-transparent"
+                  className="gap-2 justify-start bg-transparent"
                   onClick={() => onGetStarted("public-models")}
                 >
                   <Download className="h-4 w-4" />
@@ -238,7 +194,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-600/10" />
         <div className="container mx-auto text-center relative z-10">
           <div className="animate-fade-in">
             <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium">
@@ -246,7 +201,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </Badge>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-balance mb-6 bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
               Transform Your
-              <span className="block bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
                 Landscape Vision
               </span>
             </h1>
@@ -257,17 +212,13 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 size="lg"
-                className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
+                className="px-8 py-6 text-lg font-semibold hover-lift"
                 onClick={() => onGetStarted("public-models")}
               >
                 Download Free Models
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-6 text-lg font-semibold hover-lift border-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 bg-transparent"
-              >
+              <Button variant="outline" size="lg" className="px-8 py-6 text-lg font-semibold hover-lift bg-transparent">
                 <Play className="mr-2 h-5 w-5" />
                 Watch Demo
               </Button>
@@ -277,7 +228,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       </section>
 
       {/* Choose Your Role Section */}
-      <section id="features" className="py-20 px-4 bg-gradient-to-b from-transparent to-emerald-50/30">
+      <section id="features" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-5xl font-bold text-balance mb-6">Start Here</h2>
@@ -289,11 +240,11 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Designer Card */}
             <Card
-              className="glass hover-lift border-0 shadow-xl shadow-emerald-500/10 animate-slide-up group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/20"
+              className="hover-lift border-0 shadow-xl animate-slide-up group cursor-pointer transition-all duration-300"
               onClick={() => onGetStarted("designer")}
             >
               <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Palette className="h-8 w-8 text-white" />
                 </div>
 
@@ -304,10 +255,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   Upload work, track milestones, and collaborate with clients and admin, download free models
                 </p>
 
-                <Button
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25 group-hover:shadow-xl group-hover:shadow-emerald-500/30 transition-all duration-300"
-                  size="lg"
-                >
+                <Button className="w-full group-hover:shadow-xl transition-all duration-300" size="lg">
                   Get Started as Designer
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -316,12 +264,12 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
             {/* Client Card */}
             <Card
-              className="glass hover-lift border-0 shadow-xl shadow-emerald-500/10 animate-slide-up group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/20"
+              className="hover-lift border-0 shadow-xl animate-slide-up group cursor-pointer transition-all duration-300"
               style={{ animationDelay: "100ms" }}
               onClick={() => onGetStarted("client")}
             >
               <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-300 to-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Users className="h-8 w-8 text-white" />
                 </div>
 
@@ -332,10 +280,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   Share project details, view progress, and download final files
                 </p>
 
-                <Button
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25 group-hover:shadow-xl group-hover:shadow-emerald-500/30 transition-all duration-300"
-                  size="lg"
-                >
+                <Button className="w-full group-hover:shadow-xl transition-all duration-300" size="lg">
                   Get Started as Client
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -346,8 +291,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       </section>
 
       {/* SketchUp Model Library Section */}
-      <section id="library" className="py-20 px-4 bg-gradient-to-b from-emerald-50/30 to-white">
-        <div className="container mx-auto">
+      <section id="library" className="py-20 px-4 bg-gradient-to-b from-emerald-50/30 to-white relative">
+        <div className="container mx-auto relative z-10">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-5xl font-bold text-balance mb-6">
               Download free landscape sketchup models
@@ -362,12 +307,12 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             {libraryCategories.map((category, index) => (
               <Card
                 key={index}
-                className="glass hover-lift border-0 shadow-lg shadow-emerald-500/5 animate-slide-up group cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10"
+                className="hover-lift border-0 shadow-lg animate-slide-up group cursor-pointer transition-all duration-300"
                 style={{ animationDelay: category.delay }}
                 onClick={() => onGetStarted("public-models")}
               >
                 <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-emerald-200/50">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                     {category.icon}
                   </div>
                   <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
@@ -386,17 +331,13 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 size="lg"
-                className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
+                className="px-8 py-6 text-lg font-semibold hover-lift"
                 onClick={() => onGetStarted("public-models")}
               >
                 <Download className="mr-2 h-5 w-5" />
                 Access Full Library
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-6 text-lg font-semibold hover-lift border-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 bg-transparent"
-              >
+              <Button variant="outline" size="lg" className="px-8 py-6 text-lg font-semibold hover-lift bg-transparent">
                 <Play className="mr-2 h-5 w-5" />
                 Watch Demo
               </Button>
