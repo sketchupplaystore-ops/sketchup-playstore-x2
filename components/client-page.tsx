@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import {
-  LayoutDashboard,
   Search,
   User,
   Calendar,
@@ -30,8 +29,9 @@ import {
   Plus,
   Info,
   Upload,
-  Building2,
+  Layers,
 } from "lucide-react"
+import { DarkModeToggle } from "@/components/dark-mode-toggle"
 
 const mockClientProjects = [
   {
@@ -283,6 +283,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
   const [newMessage, setNewMessage] = useState("")
   const [selectedMessageProject, setSelectedMessageProject] = useState<number | null>(null)
   const [projects, setProjects] = useState(mockClientProjects)
+  const [searchTerm, setSearchTerm] = useState("")
 
   const markMessageAsRead = (messageId: number) => {
     setMessages((prevMessages) =>
@@ -519,56 +520,74 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
         )}
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-white/20 bg-white/80 backdrop-blur-xl shadow-sm">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-4 animate-slide-up">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-lg">
-                <LayoutDashboard className="h-5 w-5 text-white" />
+      <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                  <Layers className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-slate-900">Client Dashboard</h1>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-slate-900">Client Dashboard</h1>
-                <p className="text-sm text-slate-500">My Projects & Communication</p>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-3 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                >
+                  <Layers className="h-4 w-4 mr-1" />
+                  My Projects
+                </Button>
+
+                <Button
+                  onClick={() => setShowAddProjectModal(true)}
+                  className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-8 px-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 hover-lift animate-scale-in"
+                >
+                  <Plus className="h-4 w-4" />
+                  New Project
+                </Button>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                <input
+                  type="text"
                   placeholder="Search projects..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 pl-9 border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20 rounded-xl bg-white/50 backdrop-blur-sm transition-all duration-200"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-64 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white/90 backdrop-blur-sm"
                 />
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-slate-700">
-                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-sm">
-                  <User className="h-4 w-4 text-slate-600" />
-                </div>
-                <span className="font-medium">{filteredProjectsList[0]?.clientName}</span>
-              </div>
-            </div>
-          </div>
+              <DarkModeToggle />
 
-          <nav className="flex items-center gap-1 px-6 pb-3">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
-              >
-                <Building2 className="h-4 w-4" />
-                My Projects
-              </Button>
-              <Button
-                onClick={() => setShowAddProjectModal(true)}
-                className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-8 px-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 hover-lift animate-scale-in"
-              >
-                <Plus className="h-4 w-4" />
-                New Project
-              </Button>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium text-slate-700">Johnson Family</span>
+              </div>
+
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700">
+                  Admin
+                </Button>
+                <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700">
+                  Designer
+                </Button>
+                <Button variant="ghost" size="sm" className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100">
+                  Client
+                </Button>
+                <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700">
+                  Logout
+                </Button>
+              </div>
             </div>
           </nav>
         </div>
@@ -893,7 +912,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                     <Button
                       size="sm"
                       onClick={() => setShowPayPalModal(true)}
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 h-8 flex-1 shadow-sm"
+                      className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-8 flex-1 shadow-sm"
                     >
                       <DollarSign className="h-4 w-4 mr-1" />
                       Pay ${monthlyInvoiceAmount}
@@ -902,7 +921,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                       variant="outline"
                       size="sm"
                       onClick={handleSendInvoice}
-                      className="border-blue-200 hover:border-blue-300 h-8 flex-1 bg-white/90 backdrop-blur-sm"
+                      className="border-emerald-200 hover:border-emerald-300 h-8 flex-1 bg-white/90 backdrop-blur-sm"
                     >
                       Request Invoice
                     </Button>
@@ -1159,7 +1178,7 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
 
                 <Button
                   onClick={handlePayPalPayment}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
                 >
                   <CreditCard className="h-5 w-5 mr-2" />
                   Pay with PayPal

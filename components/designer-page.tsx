@@ -30,6 +30,8 @@ import {
   Home,
 } from "lucide-react"
 
+import { DarkModeToggle } from "@/components/dark-mode-toggle"
+
 const mockProjects = [
   {
     id: 1,
@@ -471,6 +473,8 @@ export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: Des
                 />
               </div>
 
+              <DarkModeToggle />
+
               <Button
                 variant="outline"
                 size="sm"
@@ -526,7 +530,7 @@ export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: Des
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-4 h-8 shadow-lg hover:shadow-xl transition-all duration-200"
+              className="gap-2 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white rounded-xl px-4 h-8 shadow-lg hover:shadow-xl transition-all duration-200"
               onClick={() => onNavigate("free-downloads")}
             >
               <Download className="h-4 w-4" />
