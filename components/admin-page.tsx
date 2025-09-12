@@ -375,7 +375,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
+                className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl px-4 h-8 shadow-lg hover:shadow-xl transition-all duration-200"
                 onClick={() => onNavigate("free-downloads")}
               >
                 <Download className="h-4 w-4" />

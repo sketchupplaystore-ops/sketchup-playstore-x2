@@ -27,9 +27,10 @@ import {
   DollarSign,
   Users,
   Zap,
-  Box,
   Plus,
   Info,
+  Upload,
+  Building2,
 } from "lucide-react"
 
 const mockClientProjects = [
@@ -206,7 +207,6 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
     title: "",
     location: "",
     type: "",
-    budget: "",
     timeline: "",
     description: "",
     contactPreference: "email" as "email" | "whatsapp" | "both",
@@ -214,6 +214,13 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
     clientName: "",
     clientEmail: "",
     clientPhone: "",
+    // New checkbox fields
+    frontyard: false,
+    backyard: false,
+    needs3D: false,
+    needs2D: false,
+    needsHOA: false,
+    needsPermit: false,
   })
 
   const [messages, setMessages] = useState([
@@ -536,14 +543,6 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                 />
               </div>
 
-              <Button
-                onClick={() => setShowAddProjectModal(true)}
-                className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 h-9"
-              >
-                <Plus className="h-4 w-4" />
-                Add Project
-              </Button>
-
               <div className="flex items-center gap-2 text-sm text-slate-700">
                 <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-sm">
                   <User className="h-4 w-4 text-slate-600" />
@@ -554,23 +553,23 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
           </div>
 
           <nav className="flex items-center gap-1 px-6 pb-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              My Projects
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDownloadAllModels}
-              className="gap-2 bg-white/80 text-slate-700 hover:bg-white hover:text-emerald-700 border border-white/60 hover:border-emerald-300 rounded-xl px-4 h-8 shadow-sm hover:shadow-md transition-all duration-200 backdrop-blur-sm"
-            >
-              <Box className="h-4 w-4" />
-              Download Models
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
+              >
+                <Building2 className="h-4 w-4" />
+                My Projects
+              </Button>
+              <Button
+                onClick={() => setShowAddProjectModal(true)}
+                className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-8 px-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 hover-lift animate-scale-in"
+              >
+                <Plus className="h-4 w-4" />
+                New Project
+              </Button>
+            </div>
           </nav>
         </div>
       </header>
@@ -943,11 +942,11 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
 
       {showAddProjectModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
+          <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Add New Project</h2>
+                  <h2 className="text-2xl font-bold text-slate-900">New Project</h2>
                   <p className="text-slate-600 mt-1">Submit project details for admin review</p>
                 </div>
                 <Button
@@ -963,177 +962,121 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Project Title *</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Project Address *</label>
                     <Input
                       value={newProject.title}
                       onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                      placeholder="e.g., Backyard Landscape Design"
+                      placeholder="123 Oak Street, Beverly Hills, CA"
                       className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Location *</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Due Date</label>
                     <Input
-                      value={newProject.location}
-                      onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
-                      placeholder="e.g., Beverly Hills, CA"
-                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Project Type *</label>
-                    <select
-                      value={newProject.type}
-                      onChange={(e) => setNewProject({ ...newProject, type: e.target.value })}
-                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
-                    >
-                      <option value="">Select type...</option>
-                      <option value="residential">Residential Landscape</option>
-                      <option value="commercial">Commercial Landscape</option>
-                      <option value="garden">Garden Design</option>
-                      <option value="hardscape">Hardscape Design</option>
-                      <option value="renovation">Landscape Renovation</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Budget Range</label>
-                    <select
-                      value={newProject.budget}
-                      onChange={(e) => setNewProject({ ...newProject, budget: e.target.value })}
-                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
-                    >
-                      <option value="">Select budget...</option>
-                      <option value="under-10k">Under $10,000</option>
-                      <option value="10k-25k">$10,000 - $25,000</option>
-                      <option value="25k-50k">$25,000 - $50,000</option>
-                      <option value="50k-100k">$50,000 - $100,000</option>
-                      <option value="over-100k">Over $100,000</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Timeline</label>
-                    <select
+                      type="date"
                       value={newProject.timeline}
                       onChange={(e) => setNewProject({ ...newProject, timeline: e.target.value })}
-                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
-                    >
-                      <option value="">Select timeline...</option>
-                      <option value="asap">ASAP</option>
-                      <option value="1-month">Within 1 month</option>
-                      <option value="2-3-months">2-3 months</option>
-                      <option value="3-6-months">3-6 months</option>
-                      <option value="flexible">Flexible</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Urgency</label>
-                    <select
-                      value={newProject.urgency}
-                      onChange={(e) => setNewProject({ ...newProject, urgency: e.target.value as "normal" | "urgent" })}
-                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
-                    >
-                      <option value="normal">Normal</option>
-                      <option value="urgent">Urgent</option>
-                    </select>
+                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Project Description *</label>
-                  <textarea
-                    value={newProject.description}
-                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                    placeholder="Describe your project requirements, style preferences, and any specific needs..."
-                    rows={4}
-                    className="w-full p-3 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20 resize-none"
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-3">Project Area *</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={newProject.frontyard}
+                          onChange={(e) => setNewProject({ ...newProject, frontyard: e.target.checked })}
+                          className="rounded border-slate-200 focus:border-emerald-400"
+                        />
+                        <span className="text-sm font-medium text-slate-700">Frontyard</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={newProject.backyard}
+                          onChange={(e) => setNewProject({ ...newProject, backyard: e.target.checked })}
+                          className="rounded border-slate-200 focus:border-emerald-400"
+                        />
+                        <span className="text-sm font-medium text-slate-700">Backyard</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-3">Services Needed</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={newProject.needs3D}
+                          onChange={(e) => {
+                            const checked = e.target.checked
+                            setNewProject({
+                              ...newProject,
+                              needs3D: checked,
+                              // Auto-select 2D when 3D is selected
+                              needs2D: checked ? true : newProject.needs2D,
+                            })
+                          }}
+                          className="rounded border-slate-200 focus:border-emerald-400"
+                        />
+                        <span className="text-sm font-medium text-slate-700">3D Design</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={newProject.needs2D}
+                          onChange={(e) => setNewProject({ ...newProject, needs2D: e.target.checked })}
+                          className="rounded border-slate-200 focus:border-emerald-400"
+                        />
+                        <span className="text-sm font-medium text-slate-700">2D Plans</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={newProject.needsHOA}
+                          onChange={(e) => setNewProject({ ...newProject, needsHOA: e.target.checked })}
+                          className="rounded border-slate-200 focus:border-emerald-400"
+                        />
+                        <span className="text-sm font-medium text-slate-700">HOA Approval</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={newProject.needsPermit}
+                          onChange={(e) => setNewProject({ ...newProject, needsPermit: e.target.checked })}
+                          className="rounded border-slate-200 focus:border-emerald-400"
+                        />
+                        <span className="text-sm font-medium text-slate-700">Permit Drawings</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={newProject.urgency === "urgent"}
+                    onChange={(e) => setNewProject({ ...newProject, urgency: e.target.checked ? "urgent" : "normal" })}
+                    className="rounded border-slate-200 focus:border-emerald-400"
                   />
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Your Name *</label>
-                    <Input
-                      value={newProject.clientName}
-                      onChange={(e) => setNewProject({ ...newProject, clientName: e.target.value })}
-                      placeholder="Full name"
-                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Email *</label>
-                    <Input
-                      type="email"
-                      value={newProject.clientEmail}
-                      onChange={(e) => setNewProject({ ...newProject, clientEmail: e.target.value })}
-                      placeholder="your@email.com"
-                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
-                    <Input
-                      value={newProject.clientPhone}
-                      onChange={(e) => setNewProject({ ...newProject, clientPhone: e.target.value })}
-                      placeholder="(555) 123-4567"
-                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
-                    />
-                  </div>
+                  <label className="text-sm font-medium text-slate-700">Mark as Urgent</label>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Preferred Contact Method</label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        value="email"
-                        checked={newProject.contactPreference === "email"}
-                        onChange={(e) =>
-                          setNewProject({
-                            ...newProject,
-                            contactPreference: e.target.value as "email" | "whatsapp" | "both",
-                          })
-                        }
-                        className="text-emerald-600"
-                      />
-                      <span className="text-sm">Email</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        value="whatsapp"
-                        checked={newProject.contactPreference === "whatsapp"}
-                        onChange={(e) =>
-                          setNewProject({
-                            ...newProject,
-                            contactPreference: e.target.value as "email" | "whatsapp" | "both",
-                          })
-                        }
-                        className="text-emerald-600"
-                      />
-                      <span className="text-sm">WhatsApp</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        value="both"
-                        checked={newProject.contactPreference === "both"}
-                        onChange={(e) =>
-                          setNewProject({
-                            ...newProject,
-                            contactPreference: e.target.value as "email" | "whatsapp" | "both",
-                          })
-                        }
-                        className="text-emerald-600"
-                      />
-                      <span className="text-sm">Both</span>
-                    </label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Upload Files (JPG, PDF, Videos - up to 10GB each)
+                  </label>
+                  <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 transition-colors bg-white/50 backdrop-blur-sm">
+                    <div className="text-center">
+                      <Upload className="h-8 w-8 text-slate-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-slate-800">Drag & drop files or click to upload</p>
+                      <p className="text-xs text-slate-500 mt-1">JPG, PDF, MP4 up to 10GB each</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1144,15 +1087,12 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                 </Button>
                 <Button
                   onClick={() => {
-                    // Handle project submission
                     console.log("Project submitted for admin review:", newProject)
                     setShowAddProjectModal(false)
-                    // Reset form
                     setNewProject({
                       title: "",
                       location: "",
                       type: "",
-                      budget: "",
                       timeline: "",
                       description: "",
                       contactPreference: "email",
@@ -1160,17 +1100,16 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                       clientName: "",
                       clientEmail: "",
                       clientPhone: "",
+                      frontyard: false,
+                      backyard: false,
+                      needs3D: false,
+                      needs2D: false,
+                      needsHOA: false,
+                      needsPermit: false,
                     })
                   }}
                   className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
-                  disabled={
-                    !newProject.title ||
-                    !newProject.location ||
-                    !newProject.type ||
-                    !newProject.description ||
-                    !newProject.clientName ||
-                    !newProject.clientEmail
-                  }
+                  disabled={!newProject.title || (!newProject.frontyard && !newProject.backyard)}
                 >
                   Submit for Review
                 </Button>

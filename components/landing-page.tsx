@@ -257,7 +257,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 </p>
 
                 <Button
-                  className="w-full group-hover:shadow-xl transition-all duration-500 bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90"
+                  className="w-full group-hover:shadow-xl transition-all duration-500 bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90 shadow-lg hover:shadow-2xl"
                   size="lg"
                 >
                   Pick Job
@@ -286,7 +286,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 </p>
 
                 <Button
-                  className="w-full group-hover:shadow-xl transition-all duration-500 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-400/90 hover:to-emerald-500/90"
+                  className="w-full group-hover:shadow-xl transition-all duration-500 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-400/90 hover:to-emerald-500/90 shadow-lg hover:shadow-2xl"
                   size="lg"
                 >
                   Post Job
