@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 
 interface LandingPageProps {
-  onGetStarted: (role: "admin" | "designer" | "client" | "models") => void
+  onGetStarted: (role: "admin" | "designer" | "client" | "models" | "free-downloads") => void
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
@@ -240,7 +240,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
-                onClick={() => onGetStarted("models")}
+                onClick={() => onGetStarted("free-downloads")}
               >
                 Download Free Models
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -369,7 +369,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
-                onClick={() => onGetStarted("models")}
+                onClick={() => onGetStarted("free-downloads")}
               >
                 <Download className="mr-2 h-5 w-5" />
                 Access Full Library

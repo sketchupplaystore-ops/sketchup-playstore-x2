@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import {
   LayoutDashboard,
-  FolderOpen,
   Plus,
   Calendar,
   Eye,
@@ -377,16 +376,7 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                 variant="ghost"
                 size="sm"
                 className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
-                onClick={() => onNavigate("files")}
-              >
-                <FolderOpen className="h-4 w-4" />
-                Files
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
-                onClick={() => onNavigate("models")}
+                onClick={() => onNavigate("free-downloads")}
               >
                 <Download className="h-4 w-4" />
                 Download Models

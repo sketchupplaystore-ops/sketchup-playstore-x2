@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   LayoutDashboard,
-  FolderOpen,
   Search,
   User,
   FileText,
@@ -28,6 +27,7 @@ import {
   DollarSign,
   Star,
   Award,
+  Home,
 } from "lucide-react"
 
 const mockProjects = [
@@ -509,6 +509,15 @@ export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: Des
             <Button
               variant="ghost"
               size="sm"
+              className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
+              onClick={() => onNavigate("landing")}
+            >
+              <Home className="h-4 w-4" />
+              Home
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-xl px-4 h-8 shadow-lg transition-all duration-200"
             >
               <LayoutDashboard className="h-4 w-4" />
@@ -518,10 +527,10 @@ export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: Des
               variant="ghost"
               size="sm"
               className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
-              onClick={() => onNavigate("files")}
+              onClick={() => onNavigate("free-downloads")}
             >
-              <FolderOpen className="h-4 w-4" />
-              Files
+              <Download className="h-4 w-4" />
+              Download Models
             </Button>
           </nav>
         </div>
@@ -929,11 +938,11 @@ export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: Des
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => onNavigate("files")}
+                            onClick={() => onNavigate("free-downloads")}
                             className="flex-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 bg-white/50 backdrop-blur-sm transition-all duration-200 rounded-xl"
                           >
-                            <FolderOpen className="h-4 w-4 mr-2" />
-                            Project Files
+                            <Download className="h-4 w-4 mr-2" />
+                            Download Models
                           </Button>
                         </div>
                       </div>
@@ -1084,10 +1093,10 @@ export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: Des
               variant="outline"
               className="w-full justify-start bg-white/50 backdrop-blur-sm text-sm h-9 rounded-xl border-white/50 hover:bg-white hover:shadow-md transition-all duration-200"
               size="sm"
-              onClick={() => onNavigate("files")}
+              onClick={() => onNavigate("free-downloads")}
             >
-              <FileText className="h-4 w-4 mr-2" />
-              View All Files
+              <Download className="h-4 w-4 mr-2" />
+              Download Free Models
             </Button>
             <Button
               variant="outline"

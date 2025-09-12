@@ -28,6 +28,7 @@ import {
   DollarSign,
   Users,
   Zap,
+  Box,
 } from "lucide-react"
 
 const mockClientProjects = [
@@ -407,6 +408,29 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
     // In real implementation, this would send invoice via PayPal
   }
 
+  const handleDownloadAllModels = () => {
+    // Get all 3D model files from all projects
+    const allModels = filteredProjectsList.flatMap((project) =>
+      project.files.filter(
+        (file) =>
+          file.type === "sketchup" || file.name.includes("3d") || file.name.includes("model") || file.phase === "3D",
+      ),
+    )
+
+    console.log("Downloading all 3D models:", allModels)
+    // In real implementation, this would create a zip file with all 3D models
+
+    // Simulate downloading each model
+    allModels.forEach((model) => {
+      const link = document.createElement("a")
+      link.href = model.url || "/placeholder.svg"
+      link.download = model.name
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    })
+  }
+
   const renderMessageText = (text: string, mentions: string[] = [], projectRef: number | null = null) => {
     let formattedText = text
 
@@ -514,6 +538,15 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
             >
               <LayoutDashboard className="h-4 w-4" />
               My Projects
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDownloadAllModels}
+              className="gap-2 bg-white/80 text-slate-700 hover:bg-white hover:text-emerald-700 border border-white/60 hover:border-emerald-300 rounded-xl px-4 h-8 shadow-sm hover:shadow-md transition-all duration-200 backdrop-blur-sm"
+            >
+              <Box className="h-4 w-4" />
+              Download Models
             </Button>
           </nav>
         </div>

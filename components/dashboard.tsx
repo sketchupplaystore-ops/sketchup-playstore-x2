@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { FileManager } from "./file-manager"
 import { SettingsPanel } from "./settings-panel"
 import { AdminPage } from "./admin-page"
 import { DesignerPage } from "./designer-page"
@@ -9,6 +8,8 @@ import { ClientPage } from "./client-page"
 import { LoginPage } from "./login-page"
 import { LandingPage } from "./landing-page"
 import { SketchUpPlaystore } from "./sketchup-playstore"
+import { ModelsPage } from "./models-page"
+import { FreeDownloadsPage } from "./free-downloads-page"
 
 const mockProjects = [
   {
@@ -101,7 +102,15 @@ export function Dashboard() {
     setCurrentPage("dashboard")
   }
 
-  const handleGetStarted = (role: "admin" | "designer" | "client") => {
+  const handleGetStarted = (role: "admin" | "designer" | "client" | "models" | "free-downloads") => {
+    if (role === "models") {
+      setCurrentPage("models")
+      return
+    }
+    if (role === "free-downloads") {
+      setCurrentPage("free-downloads")
+      return
+    }
     setCurrentUser({ role })
     setIsAuthenticated(true)
     setCurrentPage("dashboard")
@@ -111,12 +120,8 @@ export function Dashboard() {
     return <LandingPage onGetStarted={handleGetStarted} />
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && currentPage !== "models" && currentPage !== "free-downloads" && currentPage !== "playstore") {
     return <LoginPage onLogin={handleLogin} />
-  }
-
-  if (currentPage === "files") {
-    return <FileManager onBack={() => setCurrentPage("dashboard")} />
   }
 
   if (currentPage === "settings") {
@@ -125,6 +130,14 @@ export function Dashboard() {
 
   if (currentPage === "playstore") {
     return <SketchUpPlaystore />
+  }
+
+  if (currentPage === "models") {
+    return <ModelsPage onNavigate={handleNavigate} />
+  }
+
+  if (currentPage === "free-downloads") {
+    return <FreeDownloadsPage onNavigate={handleNavigate} />
   }
 
   if (currentUser?.role === "admin") {
