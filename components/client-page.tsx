@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -20,7 +20,6 @@ import {
   Download,
   AlertCircle,
   UserPlus,
-  Mail,
   X,
   Phone,
   FolderDown,
@@ -29,6 +28,8 @@ import {
   Users,
   Zap,
   Box,
+  Plus,
+  Info,
 } from "lucide-react"
 
 const mockClientProjects = [
@@ -200,6 +201,20 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
   const [monthlyInvoiceAmount, setMonthlyInvoiceAmount] = useState(185)
   const [isTyping, setIsTyping] = useState(false)
   const [unreadCount, setUnreadCount] = useState(3)
+  const [showAddProjectModal, setShowAddProjectModal] = useState(false)
+  const [newProject, setNewProject] = useState({
+    title: "",
+    location: "",
+    type: "",
+    budget: "",
+    timeline: "",
+    description: "",
+    contactPreference: "email" as "email" | "whatsapp" | "both",
+    urgency: "normal" as "normal" | "urgent",
+    clientName: "",
+    clientEmail: "",
+    clientPhone: "",
+  })
 
   const [messages, setMessages] = useState([
     {
@@ -520,6 +535,14 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                   className="w-64 pl-9 border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20 rounded-xl bg-white/50 backdrop-blur-sm transition-all duration-200"
                 />
               </div>
+
+              <Button
+                onClick={() => setShowAddProjectModal(true)}
+                className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-4 h-9"
+              >
+                <Plus className="h-4 w-4" />
+                Add Project
+              </Button>
 
               <div className="flex items-center gap-2 text-sm text-slate-700">
                 <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-sm">
@@ -918,61 +941,253 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
         </aside>
       </div>
 
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <Card className="w-96 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl animate-slide-up">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl font-bold text-slate-800">Invite Team Member</CardTitle>
+      {showAddProjectModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white shadow-2xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">Add New Project</h2>
+                  <p className="text-slate-600 mt-1">Submit project details for admin review</p>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowInviteModal(false)}
-                  className="h-8 w-8 p-0 rounded-xl hover:bg-slate-100 transition-colors"
+                  onClick={() => setShowAddProjectModal(false)}
+                  className="rounded-full h-8 w-8 p-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-sm text-slate-600">Add a new team member to your project</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Button
-                  variant={inviteMethod === "email" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setInviteMethod("email")}
-                  className="flex-1 rounded-xl transition-all duration-200"
-                >
-                  <Mail className="h-4 w-4 mr-1" />
-                  Email
+
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Project Title *</label>
+                    <Input
+                      value={newProject.title}
+                      onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
+                      placeholder="e.g., Backyard Landscape Design"
+                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Location *</label>
+                    <Input
+                      value={newProject.location}
+                      onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
+                      placeholder="e.g., Beverly Hills, CA"
+                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Project Type *</label>
+                    <select
+                      value={newProject.type}
+                      onChange={(e) => setNewProject({ ...newProject, type: e.target.value })}
+                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
+                    >
+                      <option value="">Select type...</option>
+                      <option value="residential">Residential Landscape</option>
+                      <option value="commercial">Commercial Landscape</option>
+                      <option value="garden">Garden Design</option>
+                      <option value="hardscape">Hardscape Design</option>
+                      <option value="renovation">Landscape Renovation</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Budget Range</label>
+                    <select
+                      value={newProject.budget}
+                      onChange={(e) => setNewProject({ ...newProject, budget: e.target.value })}
+                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
+                    >
+                      <option value="">Select budget...</option>
+                      <option value="under-10k">Under $10,000</option>
+                      <option value="10k-25k">$10,000 - $25,000</option>
+                      <option value="25k-50k">$25,000 - $50,000</option>
+                      <option value="50k-100k">$50,000 - $100,000</option>
+                      <option value="over-100k">Over $100,000</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Timeline</label>
+                    <select
+                      value={newProject.timeline}
+                      onChange={(e) => setNewProject({ ...newProject, timeline: e.target.value })}
+                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
+                    >
+                      <option value="">Select timeline...</option>
+                      <option value="asap">ASAP</option>
+                      <option value="1-month">Within 1 month</option>
+                      <option value="2-3-months">2-3 months</option>
+                      <option value="3-6-months">3-6 months</option>
+                      <option value="flexible">Flexible</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Urgency</label>
+                    <select
+                      value={newProject.urgency}
+                      onChange={(e) => setNewProject({ ...newProject, urgency: e.target.value as "normal" | "urgent" })}
+                      className="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20"
+                    >
+                      <option value="normal">Normal</option>
+                      <option value="urgent">Urgent</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Project Description *</label>
+                  <textarea
+                    value={newProject.description}
+                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                    placeholder="Describe your project requirements, style preferences, and any specific needs..."
+                    rows={4}
+                    className="w-full p-3 border border-slate-200 rounded-lg focus:border-emerald-400 focus:ring-emerald-400/20 resize-none"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Your Name *</label>
+                    <Input
+                      value={newProject.clientName}
+                      onChange={(e) => setNewProject({ ...newProject, clientName: e.target.value })}
+                      placeholder="Full name"
+                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Email *</label>
+                    <Input
+                      type="email"
+                      value={newProject.clientEmail}
+                      onChange={(e) => setNewProject({ ...newProject, clientEmail: e.target.value })}
+                      placeholder="your@email.com"
+                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
+                    <Input
+                      value={newProject.clientPhone}
+                      onChange={(e) => setNewProject({ ...newProject, clientPhone: e.target.value })}
+                      placeholder="(555) 123-4567"
+                      className="border-slate-200 focus:border-emerald-400 focus:ring-emerald-400/20"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Preferred Contact Method</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        value="email"
+                        checked={newProject.contactPreference === "email"}
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            contactPreference: e.target.value as "email" | "whatsapp" | "both",
+                          })
+                        }
+                        className="text-emerald-600"
+                      />
+                      <span className="text-sm">Email</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        value="whatsapp"
+                        checked={newProject.contactPreference === "whatsapp"}
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            contactPreference: e.target.value as "email" | "whatsapp" | "both",
+                          })
+                        }
+                        className="text-emerald-600"
+                      />
+                      <span className="text-sm">WhatsApp</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        value="both"
+                        checked={newProject.contactPreference === "both"}
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            contactPreference: e.target.value as "email" | "whatsapp" | "both",
+                          })
+                        }
+                        className="text-emerald-600"
+                      />
+                      <span className="text-sm">Both</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6 pt-4 border-t border-slate-200">
+                <Button variant="outline" onClick={() => setShowAddProjectModal(false)} className="flex-1">
+                  Cancel
                 </Button>
                 <Button
-                  variant={inviteMethod === "whatsapp" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setInviteMethod("whatsapp")}
-                  className="flex-1 rounded-xl transition-all duration-200"
+                  onClick={() => {
+                    // Handle project submission
+                    console.log("Project submitted for admin review:", newProject)
+                    setShowAddProjectModal(false)
+                    // Reset form
+                    setNewProject({
+                      title: "",
+                      location: "",
+                      type: "",
+                      budget: "",
+                      timeline: "",
+                      description: "",
+                      contactPreference: "email",
+                      urgency: "normal",
+                      clientName: "",
+                      clientEmail: "",
+                      clientPhone: "",
+                    })
+                  }}
+                  className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
+                  disabled={
+                    !newProject.title ||
+                    !newProject.location ||
+                    !newProject.type ||
+                    !newProject.description ||
+                    !newProject.clientName ||
+                    !newProject.clientEmail
+                  }
                 >
-                  <Phone className="h-4 w-4 mr-1" />
-                  WhatsApp
+                  Submit for Review
                 </Button>
               </div>
 
-              {inviteMethod === "email" && (
-                <Input
-                  placeholder="Enter email address"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="border-slate-200 focus:border-emerald-400 rounded-xl bg-white/90 backdrop-blur-sm"
-                />
-              )}
-
-              <Button
-                onClick={inviteMethod === "whatsapp" ? handleWhatsAppInvite : handleInviteClient}
-                disabled={inviteMethod === "email" && !inviteEmail.trim()}
-                className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                {inviteMethod === "email" ? "Send Email Invitation" : "Send WhatsApp Invitation"}
-              </Button>
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">Review Process</p>
+                    <p>
+                      Your project will be reviewed by our admin team and posted for designers to view. You'll be
+                      notified once it's live and designers start responding.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

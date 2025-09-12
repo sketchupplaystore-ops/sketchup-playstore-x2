@@ -240,49 +240,57 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Designer Card */}
             <Card
-              className="hover-lift border-0 shadow-xl animate-slide-up group cursor-pointer transition-all duration-300"
+              className="hover-lift border-0 shadow-xl animate-slide-up group cursor-pointer transition-all duration-500 hover:shadow-2xl relative overflow-hidden"
               onClick={() => onGetStarted("designer")}
             >
-              <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-8 relative z-10">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg group-hover:shadow-xl">
                   <Palette className="h-8 w-8 text-white" />
                 </div>
 
-                <h3 className="text-2xl font-bold mb-3 text-balance group-hover:text-primary transition-colors">
+                <h3 className="text-2xl font-bold mb-3 text-balance group-hover:text-primary transition-colors duration-300">
                   Designer
                 </h3>
                 <p className="text-muted-foreground mb-6 text-pretty leading-relaxed">
                   Upload work, track milestones, and collaborate with clients and admin, download free models
                 </p>
 
-                <Button className="w-full group-hover:shadow-xl transition-all duration-300" size="lg">
-                  Get Started as Designer
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <Button
+                  className="w-full group-hover:shadow-xl transition-all duration-500 bg-gradient-to-r from-primary to-emerald-500 hover:from-primary/90 hover:to-emerald-500/90"
+                  size="lg"
+                >
+                  Pick Job
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </CardContent>
             </Card>
 
             {/* Client Card */}
             <Card
-              className="hover-lift border-0 shadow-xl animate-slide-up group cursor-pointer transition-all duration-300"
+              className="hover-lift border-0 shadow-xl animate-slide-up group cursor-pointer transition-all duration-500 hover:shadow-2xl relative overflow-hidden"
               style={{ animationDelay: "100ms" }}
               onClick={() => onGetStarted("client")}
             >
-              <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/5 via-transparent to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <CardContent className="p-8 relative z-10">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg group-hover:shadow-xl">
                   <Users className="h-8 w-8 text-white" />
                 </div>
 
-                <h3 className="text-2xl font-bold mb-3 text-balance group-hover:text-primary transition-colors">
+                <h3 className="text-2xl font-bold mb-3 text-balance group-hover:text-primary transition-colors duration-300">
                   Client
                 </h3>
                 <p className="text-muted-foreground mb-6 text-pretty leading-relaxed">
                   Share project details, view progress, and download final files
                 </p>
 
-                <Button className="w-full group-hover:shadow-xl transition-all duration-300" size="lg">
-                  Get Started as Client
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <Button
+                  className="w-full group-hover:shadow-xl transition-all duration-500 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-400/90 hover:to-emerald-500/90"
+                  size="lg"
+                >
+                  Post Job
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </CardContent>
             </Card>
