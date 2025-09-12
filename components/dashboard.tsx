@@ -10,6 +10,7 @@ import { LandingPage } from "./landing-page"
 import { SketchUpPlaystore } from "./sketchup-playstore"
 import { ModelsPage } from "./models-page"
 import { FreeDownloadsPage } from "./free-downloads-page"
+import { PublicModelsLibrary } from "./public-models-library"
 
 const mockProjects = [
   {
@@ -102,13 +103,17 @@ export function Dashboard() {
     setCurrentPage("dashboard")
   }
 
-  const handleGetStarted = (role: "admin" | "designer" | "client" | "models" | "free-downloads") => {
+  const handleGetStarted = (role: "admin" | "designer" | "client" | "models" | "free-downloads" | "public-models") => {
     if (role === "models") {
       setCurrentPage("models")
       return
     }
     if (role === "free-downloads") {
       setCurrentPage("free-downloads")
+      return
+    }
+    if (role === "public-models") {
+      setCurrentPage("public-models")
       return
     }
     setCurrentUser({ role })
@@ -118,6 +123,10 @@ export function Dashboard() {
 
   if (currentPage === "landing") {
     return <LandingPage onGetStarted={handleGetStarted} />
+  }
+
+  if (currentPage === "public-models") {
+    return <PublicModelsLibrary currentUser={currentUser} onNavigateHome={() => setCurrentPage("landing")} />
   }
 
   if (!isAuthenticated && currentPage !== "models" && currentPage !== "free-downloads" && currentPage !== "playstore") {

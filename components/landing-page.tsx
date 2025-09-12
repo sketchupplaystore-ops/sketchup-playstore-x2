@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 
 interface LandingPageProps {
-  onGetStarted: (role: "admin" | "designer" | "client" | "models" | "free-downloads") => void
+  onGetStarted: (role: "admin" | "designer" | "client" | "models" | "free-downloads" | "public-models") => void
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
@@ -161,20 +161,29 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-muted-foreground hover:text-primary transition-colors">
-                Features
-              </a>
-              <a href="#library" className="text-muted-foreground hover:text-primary transition-colors">
-                Model Library
-              </a>
-              <a href="#roles" className="text-muted-foreground hover:text-primary transition-colors">
-                Get Started
-              </a>
+              <button
+                onClick={() => onGetStarted("designer")}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                Designer
+              </button>
+              <button
+                onClick={() => onGetStarted("client")}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                Client
+              </button>
+              <button
+                onClick={() => onGetStarted("public-models")}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                Download Models
+              </button>
               <Button
                 variant="outline"
                 size="sm"
                 className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 bg-transparent"
-                onClick={() => onGetStarted("models")}
+                onClick={() => onGetStarted("public-models")}
               >
                 <Download className="h-4 w-4" />
                 Model Library
@@ -194,20 +203,29 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           {isMenuOpen && (
             <nav className="md:hidden mt-4 pb-4 border-t border-border/50 pt-4 animate-slide-down">
               <div className="flex flex-col space-y-3">
-                <a href="#features" className="text-muted-foreground hover:text-primary transition-colors py-2">
-                  Features
-                </a>
-                <a href="#library" className="text-muted-foreground hover:text-primary transition-colors py-2">
-                  Model Library
-                </a>
-                <a href="#roles" className="text-muted-foreground hover:text-primary transition-colors py-2">
-                  Get Started
-                </a>
+                <button
+                  onClick={() => onGetStarted("designer")}
+                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left"
+                >
+                  Designer
+                </button>
+                <button
+                  onClick={() => onGetStarted("client")}
+                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left"
+                >
+                  Client
+                </button>
+                <button
+                  onClick={() => onGetStarted("public-models")}
+                  className="text-muted-foreground hover:text-primary transition-colors py-2 text-left"
+                >
+                  Download Models
+                </button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="gap-2 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 justify-start bg-transparent"
-                  onClick={() => onGetStarted("models")}
+                  onClick={() => onGetStarted("public-models")}
                 >
                   <Download className="h-4 w-4" />
                   Model Library
@@ -240,7 +258,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
-                onClick={() => onGetStarted("free-downloads")}
+                onClick={() => onGetStarted("public-models")}
               >
                 Download Free Models
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -346,7 +364,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 key={index}
                 className="glass hover-lift border-0 shadow-lg shadow-emerald-500/5 animate-slide-up group cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10"
                 style={{ animationDelay: category.delay }}
-                onClick={() => onGetStarted("models")}
+                onClick={() => onGetStarted("public-models")}
               >
                 <CardContent className="p-6 text-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-emerald-200/50">
@@ -369,7 +387,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               <Button
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold hover-lift bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 shadow-lg shadow-emerald-500/25"
-                onClick={() => onGetStarted("free-downloads")}
+                onClick={() => onGetStarted("public-models")}
               >
                 <Download className="mr-2 h-5 w-5" />
                 Access Full Library
