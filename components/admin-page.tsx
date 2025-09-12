@@ -27,6 +27,7 @@ import {
   Users,
   Bell,
   TrendingUp,
+  Download,
 } from "lucide-react"
 
 const mockProjects = [
@@ -215,6 +216,50 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
 
   const unreadCount = messages.filter((msg) => !msg.read).length
 
+  const handleCompleteProject = (projectId: number) => {
+    setProjects((prevProjects) =>
+      prevProjects.map((project) => {
+        if (project.id === projectId) {
+          const completedProject = {
+            ...project,
+            status: "Completed" as const,
+            progress: 100,
+            completedAt: new Date().toISOString(),
+          }
+
+          // Add to SketchUp Playstore What's New section
+          const playstoreModel = {
+            id: `project-${projectId}`,
+            name: `${project.client} - ${project.title}`,
+            description: `Complete landscape design project transformation`,
+            category: "What's New",
+            thumbnail: project.thumbnail || "/placeholder.svg",
+            downloadUrl: `/models/project-${projectId}.skp`,
+            fileSize: "15.2 MB",
+            downloads: 0,
+            rating: 5.0,
+            uploadDate: new Date().toISOString().split("T")[0],
+            isFree: false,
+            tokenCost: 10,
+            tags: ["complete", "project", "transformation", project.client.toLowerCase().replace(" ", "-")],
+            author: project.assignee || "James Wilson",
+          }
+
+          // Store in localStorage for SketchUp Playstore to access
+          const existingModels = JSON.parse(localStorage.getItem("completedProjects") || "[]")
+          localStorage.setItem("completedProjects", JSON.stringify([playstoreModel, ...existingModels]))
+
+          return completedProject
+        }
+        return project
+      }),
+    )
+
+    // Show success message
+    setShowSuccessMessage(true)
+    setTimeout(() => setShowSuccessMessage(false), 3000)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
       {showSuccessMessage && (
@@ -327,9 +372,19 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                 <FolderOpen className="h-4 w-4" />
                 Files
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 hover:bg-white/50 hover:text-slate-800 rounded-xl px-4 h-8 transition-all duration-200"
+                onClick={() => onNavigate("playstore")}
+              >
+                <Download className="h-4 w-4" />
+                Model Library
+              </Button>
             </nav>
           </div>
-        </header>
+        </div>
+      </header>
 
       <main className="max-w-7xl mx-auto p-6">
         {showNewProjectForm && (
@@ -561,6 +616,17 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
                           <MessageSquare className="h-3 w-3" />
                           Messages
                         </Button>
+                        {project.status !== "Completed" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCompleteProject(project.id)}
+                            className="gap-1 rounded-lg border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 transition-colors"
+                          >
+                            <CheckCircle className="h-3 w-3" />
+                            Complete
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -774,5 +840,5 @@ export function AdminPage({ onNavigate, onRoleSwitch, onLogout }: AdminPageProps
         </div>
       </main>
     </div>
-  )\
+  )
 }

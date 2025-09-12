@@ -7,6 +7,8 @@ import { AdminPage } from "./admin-page"
 import { DesignerPage } from "./designer-page"
 import { ClientPage } from "./client-page"
 import { LoginPage } from "./login-page"
+import { LandingPage } from "./landing-page"
+import { SketchUpPlaystore } from "./sketchup-playstore"
 
 const mockProjects = [
   {
@@ -74,7 +76,7 @@ const mockProjects = [
 ]
 
 export function Dashboard() {
-  const [currentPage, setCurrentPage] = useState("dashboard")
+  const [currentPage, setCurrentPage] = useState("landing")
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
@@ -99,6 +101,16 @@ export function Dashboard() {
     setCurrentPage("dashboard")
   }
 
+  const handleGetStarted = (role: "admin" | "designer" | "client") => {
+    setCurrentUser({ role })
+    setIsAuthenticated(true)
+    setCurrentPage("dashboard")
+  }
+
+  if (currentPage === "landing") {
+    return <LandingPage onGetStarted={handleGetStarted} />
+  }
+
   if (!isAuthenticated) {
     return <LoginPage onLogin={handleLogin} />
   }
@@ -109,6 +121,10 @@ export function Dashboard() {
 
   if (currentPage === "settings") {
     return <SettingsPanel onBack={() => setCurrentPage("dashboard")} />
+  }
+
+  if (currentPage === "playstore") {
+    return <SketchUpPlaystore />
   }
 
   if (currentUser?.role === "admin") {

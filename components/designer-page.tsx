@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   LayoutDashboard,
   FolderOpen,
@@ -194,13 +193,49 @@ const getActivityStatusColor = (status: string) => {
   }
 }
 
+const projectMessages = {
+  1: [
+    {
+      id: 1,
+      sender: "Johnson Family",
+      role: "client",
+      message:
+        "Hi Sharon! We're excited about the modern garden design. Could you please focus on drought-resistant plants?",
+      timestamp: "2 hours ago",
+      projectId: 1,
+      whatsappNumber: "+1234567890",
+    },
+    {
+      id: 2,
+      sender: "James",
+      role: "admin",
+      message:
+        "Sharon, please coordinate with the client on plant selection. Budget is approved for premium materials.",
+      timestamp: "1 hour ago",
+      projectId: 1,
+    },
+  ],
+  2: [
+    {
+      id: 3,
+      sender: "Smith Residence",
+      role: "client",
+      message: "Dennis, we love the initial sketches! Can we add a water feature to the design?",
+      timestamp: "3 hours ago",
+      projectId: 2,
+      whatsappNumber: "+1987654321",
+    },
+  ],
+}
+
 interface DesignerPageProps {
   onNavigate: (page: string) => void
   onRoleSwitch: (role: "admin" | "designer" | "client") => void
   onLogout?: () => void
 }
 
-export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPageProps) {
+export { DesignerPage }
+export default function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPageProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [dragOver, setDragOver] = useState<string | null>(null)
   const [showMilestoneModal, setShowMilestoneModal] = useState<number | null>(null)
@@ -218,6 +253,10 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
     { id: 1, message: "New project available: Modern Garden Design", type: "info", time: "2 min ago" },
     { id: 2, message: "Payment received: $8 for SketchUp milestone", type: "success", time: "1 hour ago" },
   ])
+
+  const [selectedProjectForMessages, setSelectedProjectForMessages] = useState<number | null>(null)
+  const [newMessage, setNewMessage] = useState("")
+  const [showWhatsAppOptions, setShowWhatsAppOptions] = useState(false)
 
   const availableJobs = mockProjects.filter((p) => p.status === "Available")
   const myProjects = mockProjects.filter((p) => p.assignee === currentUser.name)
@@ -325,6 +364,50 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
     if (project.progress >= 90) total += project.earnings.rendering
     return total
   }, 0)
+
+  const handleMilestoneClick = (milestone: "archicad" | "sketchup" | "lumion") => {
+    setSelectedMilestones((prev) => ({
+      ...prev,
+      [milestone]: !prev[milestone],
+    }))
+  }
+
+  const handleSendMessage = (projectId: number) => {
+    if (!newMessage.trim()) return
+
+    console.log("[v0] Sending message:", newMessage, "to project:", projectId)
+    setNewMessage("")
+
+    setNotifications((prev) => [
+      {
+        id: Date.now(),
+        message: "Message sent successfully",
+        type: "success",
+        time: "Just now",
+      },
+      ...prev.slice(0, 4),
+    ])
+  }
+
+  const handleWhatsAppMessage = (phoneNumber: string, message: string) => {
+    const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, "_blank")
+  }
+
+  const handleWhatsAppGroupInvite = (projectId: number) => {
+    const groupInviteUrl = `https://chat.whatsapp.com/invite/project-${projectId}-landscape-design`
+    navigator.clipboard.writeText(groupInviteUrl)
+
+    setNotifications((prev) => [
+      {
+        id: Date.now(),
+        message: "WhatsApp group invite link copied to clipboard",
+        type: "success",
+        time: "Just now",
+      },
+      ...prev.slice(0, 4),
+    ])
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
@@ -446,61 +529,64 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
 
       <div className="flex max-w-7xl mx-auto">
         <main className="flex-1 p-6">
+          {/* Enhanced available projects section with better visibility and real data */}
           {availableJobs.length > 0 && (
-            <Card className="border-white/50 mb-6 bg-white/70 backdrop-blur-sm shadow-lg animate-slide-up">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-lg">
-                    <Briefcase className="h-5 w-5 text-white" />
-                  </div>
+            <Card className="border-white/50 bg-white/70 backdrop-blur-sm shadow-lg mb-6 animate-slide-up">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <CardTitle className="text-slate-800 text-xl">Available Projects</CardTitle>
-                    <p className="text-sm text-slate-600 mt-1">Select your preferred milestones and start earning</p>
+                    <h2 className="text-xl font-bold text-slate-800 mb-1">Available Projects</h2>
+                    <p className="text-sm text-slate-600">Select projects to work on and earn milestone payments</p>
                   </div>
+                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1 rounded-full">
+                    {availableJobs.length} Available
+                  </Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {availableJobs.map((project, index) => (
                     <Card
                       key={project.id}
-                      className="border-white/50 bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-up"
+                      className="border-white/50 bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-up cursor-pointer"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <CardContent className="p-5">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <Badge
-                              className={`${getStatusColor(project.status)} rounded-full px-3 py-1`}
-                              variant="outline"
-                            >
-                              {project.status}
-                            </Badge>
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="h-4 w-4 text-emerald-600" />
-                              <span className="text-lg font-bold text-emerald-700">{project.budget}</span>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold text-base text-slate-900 mb-1">{project.address}</h3>
-                            <p className="text-sm text-slate-600">Client: {project.client}</p>
-                          </div>
-
-                          <div className="flex items-center justify-between text-xs text-slate-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(project.dueDate).toLocaleDateString()}
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-slate-800 text-sm mb-1 line-clamp-2">
+                                {project.title}
+                              </h3>
+                              <p className="text-xs text-slate-600 mb-2">{project.client}</p>
+                              <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <Calendar className="h-3 w-3" />
+                                Due: {new Date(project.dueDate).toLocaleDateString()}
+                              </div>
                             </div>
                             {project.urgent && (
-                              <Badge
-                                className="bg-red-50 text-red-700 border-red-200 rounded-full px-2 py-0.5"
-                                variant="outline"
-                              >
+                              <Badge className="bg-red-50 text-red-700 border-red-200 text-xs px-2 py-1 rounded-full">
                                 <AlertCircle className="h-3 w-3 mr-1" />
                                 Urgent
                               </Badge>
                             )}
+                          </div>
+
+                          <div className="bg-slate-50 rounded-lg p-3">
+                            <div className="text-xs text-slate-600 mb-2">Milestone Earnings:</div>
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <div className="font-semibold text-emerald-700">${project.earnings.archicad}</div>
+                                <div className="text-slate-500">Archicad</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-semibold text-emerald-700">${project.earnings.sketchup}</div>
+                                <div className="text-slate-500">SketchUp</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-semibold text-emerald-700">${project.earnings.rendering}</div>
+                                <div className="text-slate-500">Rendering</div>
+                              </div>
+                            </div>
                           </div>
 
                           <Button
@@ -916,10 +1002,12 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
 
           {/* Enhanced Quick Stats */}
           <div className="mb-6">
-            <h3 className="font-semibold mb-4 text-slate-800 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Quick Stats
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-slate-600" />
+                <h3 className="font-semibold text-slate-800">Quick Stats</h3>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <Card className="border-white/50 bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200">
                 <CardContent className="p-4">
@@ -1015,8 +1103,8 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
       </div>
 
       {showMilestoneModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <Card className="w-96 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl animate-slide-up">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md border-white/50 bg-white/95 backdrop-blur-xl shadow-2xl animate-scale-in">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl font-bold text-slate-800">Select Milestones</CardTitle>
@@ -1029,20 +1117,37 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-sm text-slate-600">Choose which phases you'd like to work on:</p>
+              <p className="text-sm text-slate-600">
+                Choose which phases you'd like to work on by clicking the blocks:
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                  <Checkbox
-                    id="archicad"
-                    checked={selectedMilestones.archicad}
-                    onCheckedChange={(checked) => setSelectedMilestones((prev) => ({ ...prev, archicad: !!checked }))}
-                  />
+                <div
+                  className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    selectedMilestones.archicad
+                      ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-500/20"
+                      : "border-slate-200 hover:border-emerald-300 hover:bg-slate-50"
+                  }`}
+                  onClick={() => handleMilestoneClick("archicad")}
+                >
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                      selectedMilestones.archicad ? "border-emerald-500 bg-emerald-500" : "border-slate-300"
+                    }`}
+                  >
+                    {selectedMilestones.archicad && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
                   <div className="flex-1">
-                    <label htmlFor="archicad" className="text-sm font-semibold cursor-pointer text-slate-700">
-                      Archicad Phase
-                    </label>
+                    <div className="text-sm font-semibold text-slate-700">Archicad Phase</div>
                     <p className="text-xs text-slate-500">Site analysis & measurements</p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -1051,16 +1156,31 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                  <Checkbox
-                    id="sketchup"
-                    checked={selectedMilestones.sketchup}
-                    onCheckedChange={(checked) => setSelectedMilestones((prev) => ({ ...prev, sketchup: !!checked }))}
-                  />
+                <div
+                  className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    selectedMilestones.sketchup
+                      ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-500/20"
+                      : "border-slate-200 hover:border-emerald-300 hover:bg-slate-50"
+                  }`}
+                  onClick={() => handleMilestoneClick("sketchup")}
+                >
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                      selectedMilestones.sketchup ? "border-emerald-500 bg-emerald-500" : "border-slate-300"
+                    }`}
+                  >
+                    {selectedMilestones.sketchup && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
                   <div className="flex-1">
-                    <label htmlFor="sketchup" className="text-sm font-semibold cursor-pointer text-slate-700">
-                      SketchUp Phase
-                    </label>
+                    <div className="text-sm font-semibold text-slate-700">SketchUp Phase</div>
                     <p className="text-xs text-slate-500">3D modeling & design</p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -1069,16 +1189,31 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                  <Checkbox
-                    id="lumion"
-                    checked={selectedMilestones.lumion}
-                    onCheckedChange={(checked) => setSelectedMilestones((prev) => ({ ...prev, lumion: !!checked }))}
-                  />
+                <div
+                  className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    selectedMilestones.lumion
+                      ? "border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-500/20"
+                      : "border-slate-200 hover:border-emerald-300 hover:bg-slate-50"
+                  }`}
+                  onClick={() => handleMilestoneClick("lumion")}
+                >
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                      selectedMilestones.lumion ? "border-emerald-500 bg-emerald-500" : "border-slate-300"
+                    }`}
+                  >
+                    {selectedMilestones.lumion && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
                   <div className="flex-1">
-                    <label htmlFor="lumion" className="text-sm font-semibold cursor-pointer text-slate-700">
-                      Lumion Rendering
-                    </label>
+                    <div className="text-sm font-semibold text-slate-700">Lumion Rendering</div>
                     <p className="text-xs text-slate-500">Final visualization</p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -1088,20 +1223,34 @@ export function DesignerPage({ onNavigate, onRoleSwitch, onLogout }: DesignerPag
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  className="flex-1 bg-white/50 backdrop-blur-sm rounded-xl border-slate-200 hover:bg-white transition-all duration-200"
-                  onClick={() => setShowMilestoneModal(null)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                  onClick={confirmJobSelection}
-                >
-                  Confirm Selection
-                </Button>
+              <div className="pt-4 border-t border-slate-200">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-slate-700">Total Earnings:</span>
+                  <span className="text-lg font-bold text-emerald-700">
+                    $
+                    {Object.entries(selectedMilestones).reduce((total, [key, selected]) => {
+                      if (!selected) return total
+                      const earnings = { archicad: 2, sketchup: 8, lumion: 5 }
+                      return total + earnings[key as keyof typeof earnings]
+                    }, 0)}
+                  </span>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={confirmJobSelection}
+                    disabled={Object.values(selectedMilestones).every((v) => !v)}
+                    className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Confirm Selection
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowMilestoneModal(null)}
+                    className="px-6 rounded-xl border-slate-200 hover:bg-slate-50 transition-all duration-200"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
