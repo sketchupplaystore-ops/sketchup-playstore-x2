@@ -26,9 +26,6 @@ import {
   DollarSign,
   Users,
   Zap,
-  Plus,
-  Info,
-  Upload,
   Layers,
 } from "lucide-react"
 import { DarkModeToggle } from "@/components/dark-mode-toggle"
@@ -539,16 +536,17 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                   size="sm"
                   className="h-8 px-3 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 >
-                  <Layers className="h-4 w-4 mr-1" />
-                  My Projects
+                  <Home className="h-4 w-4 mr-1" />
+                  Home
                 </Button>
 
                 <Button
-                  onClick={() => setShowAddProjectModal(true)}
-                  className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-8 px-4 rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-200 hover-lift animate-scale-in"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-3 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 >
-                  <Plus className="h-4 w-4" />
-                  New Project
+                  <Layers className="h-4 w-4 mr-1" />
+                  My Projects
                 </Button>
               </div>
             </div>
@@ -1070,123 +1068,11 @@ export function ClientPage({ onNavigate, onRoleSwitch, onLogout }: ClientPagePro
                           onChange={(e) => setNewProject({ ...newProject, needsPermit: e.target.checked })}
                           className="rounded border-slate-200 focus:border-emerald-400"
                         />
-                        <span className="text-sm font-medium text-slate-700">Permit Drawings</span>
+                        <span className="text-sm font-medium text-slate-700">Building Permit</span>
                       </label>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={newProject.urgency === "urgent"}
-                    onChange={(e) => setNewProject({ ...newProject, urgency: e.target.checked ? "urgent" : "normal" })}
-                    className="rounded border-slate-200 focus:border-emerald-400"
-                  />
-                  <label className="text-sm font-medium text-slate-700">Mark as Urgent</label>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Upload Files (JPG, PDF, Videos - up to 10GB each)
-                  </label>
-                  <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 transition-colors bg-white/50 backdrop-blur-sm">
-                    <div className="text-center">
-                      <Upload className="h-8 w-8 text-slate-600 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-slate-800">Drag & drop files or click to upload</p>
-                      <p className="text-xs text-slate-500 mt-1">JPG, PDF, MP4 up to 10GB each</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6 pt-4 border-t border-slate-200">
-                <Button variant="outline" onClick={() => setShowAddProjectModal(false)} className="flex-1">
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    console.log("Project submitted for admin review:", newProject)
-                    setShowAddProjectModal(false)
-                    setNewProject({
-                      title: "",
-                      location: "",
-                      type: "",
-                      timeline: "",
-                      description: "",
-                      contactPreference: "email",
-                      urgency: "normal",
-                      clientName: "",
-                      clientEmail: "",
-                      clientPhone: "",
-                      frontyard: false,
-                      backyard: false,
-                      needs3D: false,
-                      needs2D: false,
-                      needsHOA: false,
-                      needsPermit: false,
-                    })
-                  }}
-                  className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800"
-                  disabled={!newProject.title || (!newProject.frontyard && !newProject.backyard)}
-                >
-                  Submit for Review
-                </Button>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-blue-800">
-                    <p className="font-medium mb-1">Review Process</p>
-                    <p>
-                      Your project will be reviewed by our admin team and posted for designers to view. You'll be
-                      notified once it's live and designers start responding.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {showPayPalModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <Card className="w-96 border-white/50 bg-white/95 backdrop-blur-xl shadow-2xl animate-slide-up">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">PayPal Invoice Payment</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPayPalModal(false)}
-                  className="h-8 w-8 p-0 rounded-xl hover:bg-slate-100 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-xl border border-blue-200 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-900">Invoice Payment</span>
-                    <span className="text-lg font-bold text-blue-900">${monthlyInvoiceAmount}</span>
-                  </div>
-                  <p className="text-sm text-blue-700">One-time payment for current project work</p>
-                </div>
-
-                <Button
-                  onClick={handlePayPalPayment}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 h-12 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
-                >
-                  <CreditCard className="h-5 w-5 mr-2" />
-                  Pay with PayPal
-                </Button>
-
-                <p className="text-sm text-slate-500 text-center">
-                  Secure payment processing via PayPal. Your payment information is protected.
-                </p>
               </div>
             </CardContent>
           </Card>
